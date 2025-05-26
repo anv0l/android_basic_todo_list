@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Todo List</string>
+    <string name="list_items_group_to_be_done">To be done</string>
+    <string name="list_items_group_done">Done</string>
+    <string name="new_item_default_text">New item</string>
+    <string name="new_item_name_hint">New item name</string>
+    <string name="new_item_dialog_title">Add new item to \"%1$s\":</string>
+    <string name="new_item_dialog_positive">Add</string>
+    <string name="new_item_dialog_negative">Cancel</string>
+</resources>

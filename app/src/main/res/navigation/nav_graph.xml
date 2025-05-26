@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph.xml"
+    app:startDestination="@id/task_lists">
+
+    <fragment
+        android:id="@+id/task_lists"
+        android:name="com.example.todolist.ui.list.main.FragmentTaskList"
+        android:label="fragment_shop_lists"
+        app:defaultNavHost="true"
+        tools:layout="@layout/fragment_task_lists">
+        <action
+            android:id="@+id/action_lists_to_list"
+            app:destination="@+id/task_items" />
+
+        <action
+            android:id="@+id/action_lists_to_add_new_list_dialog"
+            app:destination="@+id/dialog_new_list" />
+
+        <action
+            android:id="@+id/action_lists_to_dialog_edit_list_name"
+            app:destination="@id/dialog_edit_list_name" />
+
+        <action
+            android:id="@+id/action_lists_to_dialog_delete_lists"
+            app:destination="@id/dialog_delete_lists" />
+    </fragment>
+
+    <dialog
+        android:id="@+id/dialog_new_list"
+        android:name="com.example.todolist.dialogs.NewListDialogFragment"
+        android:label="dialog_new_list"
+        tools:layout="@layout/_edit_dialog">
+        <action
+            android:id="@+id/action_dialog_new_list_to_task_items"
+            app:destination="@+id/task_items" />
+
+    </dialog>
+
+    <fragment
+        android:id="@+id/task_items"
+        android:name="com.example.todolist.ui.items.active.FragmentTaskItemActive"
+        tools:layout="@layout/fragment_task_item_active">
+        <!--        <argument-->
+        <!--            android:name="selectList"-->
+        <!--            app:argType="string" />-->
+
+        <action
+            android:id="@+id/action_selected_list_to_lists"
+            app:destination="@id/task_lists" />
+
+        <action
+            android:id="@+id/action_items_to_edit_items"
+            app:destination="@id/task_edit_items" />
+
+        <action
+            android:id="@+id/action_selected_list_to_dialog_new_item"
+            app:destination="@id/dialog_new_item" />
+
+        <action
+            android:id="@+id/action_selected_list_to_dialog_edit_list_name"
+            app:destination="@id/dialog_edit_list_name" />
+
+        <action
+            android:id="@+id/action_selected_list_to_dialog_delete_lists"
+            app:destination="@id/dialog_delete_lists" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/task_edit_items"
+        android:name="com.example.todolist.ui.items.edit.FragmentEditTaskItem"
+        tools:layout="@layout/fragment_task_item_edit">
+        <action
+            android:id="@+id/action_edit_items_to_items"
+            app:destination="@id/task_items" />
+
+        <action
+            android:id="@+id/actionEdit_item_to_dialog_edit"
+            app:destination="@id/dialog_edit_item" />
+
+        <action
+            android:id="@+id/action_edit_items_to_delete_items"
+            app:destination="@id/dialog_delete_items" />
+
+    </fragment>
+
+    <dialog
+        android:id="@+id/dialog_edit_item"
+        android:name="com.example.todolist.dialogs.EditItemNameDialogFragment"
+        android:label="dialog_edit_item"
+        tools:layout="@layout/_edit_dialog">
+
+        <argument
+            android:name="itemName"
+            app:argType="string" />
+
+    </dialog>
+
+    <dialog
+        android:id="@+id/dialog_new_item"
+        android:name="com.example.todolist.dialogs.NewItemDialogFragment"
+        android:label="dialog_new_item"
+        tools:layout="@layout/_edit_dialog">
+
+        <argument
+            android:name="listName"
+            app:argType="string" />
+    </dialog>
+
+    <dialog
+        android:id="@+id/dialog_edit_list_name"
+        android:name="com.example.todolist.dialogs.EditListNameDialogFragment"
+        android:label="dialog_edit_list_name"
+        tools:layout="@layout/_edit_dialog">
+
+        <argument
+            android:name="listName"
+            app:argType="string" />
+    </dialog>
+
+    <dialog
+        android:id="@+id/dialog_delete_lists"
+        android:name="com.example.todolist.dialogs.DeleteListsDialogFragment"
+        android:label="dialog_delete_lists">
+
+        <argument
+            android:name="confirmation"
+            app:argType="string" />
+
+        <argument
+            android:name="title"
+            app:argType="string" />
+
+        <action
+            android:id="@+id/action_delete_lists_to_lists"
+            app:destination="@+id/task_lists">
+
+        </action>
+    </dialog>
+
+    <dialog
+        android:id="@+id/dialog_delete_items"
+        android:name="com.example.todolist.dialogs.DeleteItemDialogFragment"
+        android:label="dialog_delete_items">
+
+        <argument
+            android:name="confirmation"
+            app:argType="string" />
+
+        <argument
+            android:name="title"
+            app:argType="string" />
+    </dialog>
+
+    <!--    <fragment android:id="@+id/fragment_import_list"-->
+    <!--        android:name="">-->
+
+    <!--    </fragment>-->
+
+</navigation>

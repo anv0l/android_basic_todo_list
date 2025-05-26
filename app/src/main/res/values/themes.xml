@@ -1,0 +1,15 @@
+<resources>
+    <!-- Base application theme. -->
+    <style name="Base.Theme.Todolist" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="windowActionModeOverlay">true</item>
+        <item name="actionModeBackground">@color/md_theme_primaryContainer</item>
+        <item name="actionModeCloseDrawable">@drawable/close_24dp</item>
+
+        <item name="actionBarTheme">@style/ThemeOverlay.Material3.ActionBar</item>
+    </style>
+
+
+    <style name="Theme.Todolist" parent="Base.Theme.Todolist" />
+</resources>

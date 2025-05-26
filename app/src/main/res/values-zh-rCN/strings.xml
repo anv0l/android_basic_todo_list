@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Todo List</string>
+    <string name="list_items_group_to_be_done">待办</string>
+    <string name="list_items_group_done">完成</string>
+    <string name="new_item_default_text">加一项</string>
+    <string name="new_item_name_hint">事项名</string>
+    <string name="new_item_dialog_title">加项到 \'%1$s\'</string>
+    <string name="new_item_dialog_positive">加</string>
+    <string name="new_item_dialog_negative">取消</string>
+</resources>

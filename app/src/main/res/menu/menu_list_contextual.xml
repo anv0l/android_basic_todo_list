@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/menu_add_to_home_screen"
+        android:contentDescription="Add to home screen"
+        android:icon="@drawable/add_to_home_screen_24dp"
+        android:title="Add to home screen"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/menu_rename_list"
+        android:contentDescription="Rename list"
+        android:icon="@drawable/edit_square_24dp"
+        android:title="Rename list"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/menu_delete_selected_lists"
+        android:contentDescription="Delete selected lists"
+        android:icon="@drawable/delete_24dp"
+        android:title="Delete selected"
+        app:showAsAction="never" />
+
+
+</menu>

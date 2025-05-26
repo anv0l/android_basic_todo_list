@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/import_app_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/import_app_bar_container"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                app:menu="@menu/menu_import_list"
+                app:navigationIcon="@drawable/arrow_back_24dp"
+                app:title="Import TODO list from text">
+
+                <androidx.appcompat.widget.ActionMenuView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="end">
+
+                </androidx.appcompat.widget.ActionMenuView>
+
+            </com.google.android.material.appbar.MaterialToolbar>
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/txt_new_list_container"
+        style="@style/Widget.Material3.TextInputLayout.FilledBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="New list name"
+        android:padding="10dp"
+        app:endIconMode="custom"
+        app:layout_constraintTop_toBottomOf="@id/import_app_bar"
+        tools:ignore="NotSibling">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/txt_new_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="New list" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/txt_import_container"
+        style="@style/Widget.Material3.TextInputLayout.FilledBox"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:hint="New list name"
+        android:padding="10dp"
+
+        app:endIconMode="custom"
+        app:layout_constraintBottom_toTopOf="@id/btn_import"
+        app:layout_constraintTop_toBottomOf="@id/txt_new_list_container"
+
+        tools:ignore="NotSibling">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/txt_import"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="top|start"
+            android:inputType="textMultiLine"
+            android:text="New list" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_import"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Import"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

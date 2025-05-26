@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Todo List</string>
+    <string name="list_items_group_to_be_done">Сделать</string>
+    <string name="list_items_group_done">Готово</string>
+    <string name="new_item_default_text">Новый пункт</string>
+    <string name="new_item_name_hint">Название пункта</string>
+    <string name="new_item_dialog_title">Добавить пункт в \"%1$s\"</string>
+    <string name="new_item_dialog_positive">Добавить</string>
+    <string name="new_item_dialog_negative">Отмена</string>
+</resources>

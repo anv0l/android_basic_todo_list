@@ -289,12 +289,15 @@ class FragmentTaskList : Fragment() {
                 destroyed = false
                 valid = true
                 mode?.menuInflater?.inflate(R.menu.menu_list_contextual, menu)
+
 //                MenuInflater(context).inflate(R.menu.menu_list_contextual, menu)
                 Log.d("ActionMode", "onCreateActionMode")
 
                 binding.listsAppBar.isEnabled = false
                 binding.listsAppBar.alpha = 0.5f
                 binding.listsAppBar.menu.setGroupEnabled(0, false)
+                binding.fabAddNewList.isEnabled = false
+
                 return true
             }
 
@@ -334,6 +337,7 @@ class FragmentTaskList : Fragment() {
                 binding.listsAppBar.isEnabled = true
                 binding.listsAppBar.alpha = 1f
                 binding.listsAppBar.menu.setGroupEnabled(0, true)
+                binding.fabAddNewList.isEnabled = true
                 viewModel.clearListChecks()
                 actionMode = null
             }

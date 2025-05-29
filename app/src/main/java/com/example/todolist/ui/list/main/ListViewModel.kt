@@ -98,10 +98,7 @@ class ListViewModel @Inject constructor(
 
     val selectedListName: StateFlow<String> =
         repository.getListName(selectedListId.value).combine(selectedListId) { list, listId ->
-            println("selectedListName: $listId $list")
             repository.getListName(listId).first()
-
-            //list
         }.stateIn(
             CoroutineScope(Dispatchers.Default),
             SharingStarted.Eagerly,

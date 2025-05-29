@@ -73,7 +73,6 @@ class FragmentTaskList : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.taskListsWithPreview.collect { lists ->
-                    Log.d("viewModel", "taskListsWithPreview collected")
                     adapter.submitList(lists)
                 }
             }

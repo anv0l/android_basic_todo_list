@@ -15,12 +15,6 @@ class TaskListViewHolder(private val binding: VhTaskListBinding) :
         onClick: (Int) -> Unit,
         onLongClick: (Int) -> Unit
     ) {
-        if (list.checked) {
-            println("${list.id} is checked")
-        }
-        else {
-            println("${list.id} is UNchecked")
-        }
         binding.lstMain.isChecked = list.checked
 
         listName.text = list.listName

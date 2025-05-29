@@ -20,7 +20,6 @@ class ListImportRepository @Inject constructor(
             )
         )
         repository.selectList(listId)
-        println(listId)
         listItems.forEach { item ->
             val itemId = taskListDao.insertItem(
                 TaskItemEntity(
@@ -31,7 +30,6 @@ class ListImportRepository @Inject constructor(
                 )
 
             )
-            println(itemId)
         }
     }
 }

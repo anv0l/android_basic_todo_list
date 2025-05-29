@@ -30,7 +30,10 @@ class ListViewModel @Inject constructor(
     val selectedListId = repository.selectedListId
 
     val checkedLists = repository.checkedLists
-    val checkedListsCount = repository.checkedListsCount
+//    private val _checkedListCount = MutableStateFlow<Int>(0)
+//    val checkedListsCount = _checkedListCount.asStateFlow()
+
+
 
 
     suspend fun getListName(listId: Long): String {

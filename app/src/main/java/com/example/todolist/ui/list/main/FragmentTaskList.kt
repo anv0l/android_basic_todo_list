@@ -59,7 +59,7 @@ class FragmentTaskList : Fragment() {
         adapter = TaskListAdapter({ selectedListId ->
             val selectedList = viewModel.taskListsWithPreview.value[selectedListId]
             val action = FragmentTaskListDirections.actionListsToList()
-            if (viewModel.checkedListsCount.value > 0) {
+            if (viewModel.checkedLists.value.isNotEmpty()) {
                 viewModel.toggleList(selectedList.id)
             } else {
                 viewModel.selectList(selectedList.id)
@@ -79,11 +79,12 @@ class FragmentTaskList : Fragment() {
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.checkedListsCount.collect { count ->
-                if (count > 0) {
-                    startActionModeIfNeeded()
-                    actionMode?.title = "Selected: $count"
-                    if (count > 1) {
+            viewModel.checkedLists.collect { checkedLists ->
+                if (checkedLists.isNotEmpty()) {
+                    startActionModeIfNeeded("Selected: ${checkedLists.size}")
+//                    startActionMode()
+//                    actionMode?.title = "Selected: ${checkedLists.size}"
+                    if (checkedLists.size > 1) {
                         actionMode?.menu?.findItem(R.id.menu_rename_list)?.isEnabled = false
                         actionMode?.menu?.findItem(R.id.menu_rename_list)?.iconTintBlendMode =
                             BlendMode.DARKEN
@@ -97,6 +98,8 @@ class FragmentTaskList : Fragment() {
                     }
                 } else {
                     cleanupActionMode()
+//                    actionMode = null
+
                 }
             }
         }
@@ -132,8 +135,9 @@ class FragmentTaskList : Fragment() {
     override fun onResume() {
         super.onResume()
         view?.post {
-            if (viewModel.checkedListsCount.value > 0 && actionMode == null) {
-                startActionModeIfNeeded()
+            if (viewModel.checkedLists.value.isNotEmpty()  && actionMode == null) {
+//                startActionMode()
+                startActionModeIfNeeded("Selected: ${viewModel.checkedLists.value.size}")
             }
         }
     }
@@ -141,7 +145,7 @@ class FragmentTaskList : Fragment() {
     //debug
     override fun onDestroyView() {
         actionMode?.finish()
-        actionMode = null
+//        actionMode = null
         super.onDestroyView()
     }
 
@@ -193,19 +197,23 @@ class FragmentTaskList : Fragment() {
     }
 
     // debug?
-    private fun startActionModeIfNeeded() {
-        if (actionMode != null || actionModeStarting) return
+    private fun startActionModeIfNeeded(title: String) {
+        if (actionMode != null) {
+            actionMode?.title = title
+            return
+        }
+        if (actionModeStarting) return
 
-        val checkedCount = viewModel.checkedListsCount.value
+        val checkedCount = viewModel.checkedLists.value.size
         if (checkedCount <= 0) return
 
         actionModeStarting = true
         view?.post {
             try {
-                actionMode = tryStartingActionMode()
+                actionMode = tryStartingActionMode(title)
                 if (actionMode == null && actionModeRetryCount < maxRetries) {
                     actionModeRetryCount++
-                    view?.postDelayed({ startActionModeIfNeeded() }, 100L)
+                    view?.postDelayed({ startActionModeIfNeeded(title) }, 100L)
                 } else {
                     actionModeRetryCount = 0
                 }
@@ -215,9 +223,10 @@ class FragmentTaskList : Fragment() {
         }
     }
 
-    private fun tryStartingActionMode(): ActionMode? {
+    private fun tryStartingActionMode(title: String): ActionMode? {
         return try {
             requireActivity().startActionMode(actionModeCallback).also {
+                it?.title = title
                 Log.d("ActionMode", "Successfully started")
             }
         } catch (e: Exception) {
@@ -264,6 +273,13 @@ class FragmentTaskList : Fragment() {
         }
     }
 
+    private fun startActionMode() {
+        if (actionMode == null)
+
+            activity?.startActionMode(actionModeCallback)
+//            (AppCompatActivity) getActivity()).startSupportActionMode(actionModeCallback)
+    }
+
     private fun setupActionModeCallback() {
         actionModeCallback = object : ActionMode.Callback {
             private var destroyed = false
@@ -272,8 +288,9 @@ class FragmentTaskList : Fragment() {
             override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
                 destroyed = false
                 valid = true
+                mode?.menuInflater?.inflate(R.menu.menu_list_contextual, menu)
+//                MenuInflater(context).inflate(R.menu.menu_list_contextual, menu)
                 Log.d("ActionMode", "onCreateActionMode")
-                MenuInflater(context).inflate(R.menu.menu_list_contextual, menu)
 
                 binding.listsAppBar.isEnabled = false
                 binding.listsAppBar.alpha = 0.5f

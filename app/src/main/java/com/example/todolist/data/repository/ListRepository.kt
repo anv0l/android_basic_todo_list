@@ -3,19 +3,15 @@ package com.example.todolist.data.repository
 import com.example.todolist.data.local.dao.TaskListDao
 import com.example.todolist.data.local.entities.TaskItemEntity
 import com.example.todolist.data.local.entities.TaskListEntity
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.stateIn
 import java.time.Instant
 import javax.inject.Inject
 
@@ -66,13 +62,13 @@ class ListRepository @Inject constructor(
     /*
     * Lists
     * */
-    val checkedListsCount = checkedLists.combine(checkedLists) { lists, _ ->
-        lists.size
-    }.stateIn(
-        scope = CoroutineScope(Dispatchers.Default),
-        initialValue = 0,
-        started = SharingStarted.WhileSubscribed(5000)
-    )
+//    val checkedListsCount = checkedLists.combine(checkedLists) { lists, _ ->
+//        lists.size
+//    }.stateIn(
+//        scope = CoroutineScope(Dispatchers.Default),
+//        initialValue = 0,
+//        started = SharingStarted.WhileSubscribed(5000)
+//    )
 
     /*
     * common
@@ -126,6 +122,7 @@ class ListRepository @Inject constructor(
     * lists
     * */
     fun toggleList(listId: Long) {
+        println("list $listId toggled")
         _checkedLists.value = if (checkedLists.value.contains(listId)) {
             checkedLists.value - listId
         } else {

@@ -27,7 +27,7 @@ class FragmentEditTaskItem : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.itemsAppBarContainer.setNavigationOnClickListener {
-            navController.navigate(R.id.action_edit_items_to_items)
+            navController.popBackStack()
         }
 
         adapter = EditTaskItemAdapter({ selectedItem ->

@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import java.time.Instant
 import javax.inject.Inject
@@ -29,8 +28,7 @@ class ListRepository @Inject constructor(
     private val _selectedListId = MutableStateFlow<Long>(-1)
     val selectedListId: StateFlow<Long> = _selectedListId.asStateFlow()
 
-
-    fun getSelectedListId(): Long {
+    private fun getSelectedListId(): Long {
         return _selectedListId.value
     }
 
@@ -38,34 +36,36 @@ class ListRepository @Inject constructor(
         _selectedListId.value = listId
     }
 
-   /*
-   * Lists
-   * */
+    /*
+    * Lists
+    * */
     private var _checkedLists = MutableStateFlow<Set<Long>>(emptySet())
     val checkedLists = _checkedLists.asStateFlow()
 
     /*
    * Lists
    * */
-    fun getTaskLists(): Flow<List<TaskListEntity>> = taskListDao.getAllListsSorted()
 
     /*
    * Lists
    * */
     fun getTaskListsWithPreview(): Flow<List<TaskListEntity>> {
-        return taskListDao.getAllListsSorted().map { lists ->
+        return taskListDao.getAllListsSorted().combine(checkedLists) { lists, checkedIds ->
             lists.map { list ->
                 val previews =
-                    taskListDao.getTaskItemsPreview(list.id, prefsRepository.maxPreviewItems.value).first()
-                list.copy().apply { previewItems = previews }
+                    taskListDao.getTaskItemsPreview(list.id, prefsRepository.maxPreviewItems.value)
+                        .first()
+                list.copy().apply {
+                    previewItems = previews
+                    checked = checkedIds.contains(list.id)
+                }
             }
         }
     }
 
     /*
-   * Lists
-   * */
-
+    * Lists
+    * */
     val checkedListsCount = checkedLists.combine(checkedLists) { lists, _ ->
         lists.size
     }.stateIn(
@@ -87,10 +87,10 @@ class ListRepository @Inject constructor(
         selectedListId.flatMapLatest { listId -> taskListDao.observeItemsForList(listId) }
 
     /*
-   * items
-   * */
-    fun observeItemsForList(listId: Long): Flow<List<TaskItemEntity>> =
-        taskListDao.observeItemsForList(listId)
+    * items
+    * */
+//    fun observeItemsForList(listId: Long): Flow<List<TaskItemEntity>> =
+//        taskListDao.observeItemsForList(listId)
 
     /*
     * lists
@@ -107,7 +107,7 @@ class ListRepository @Inject constructor(
         val listId =
             addList(
                 TaskListEntity(
-                    id = -1,
+                    id = 0,
                     listName = listName,
                     dateModified = Instant.now()
                 )
@@ -126,10 +126,11 @@ class ListRepository @Inject constructor(
     * lists
     * */
     fun toggleList(listId: Long) {
-        if (checkedLists.value.contains(listId)) {
-            _checkedLists.value -= listId
-        } else
-            _checkedLists.value += listId
+        _checkedLists.value = if (checkedLists.value.contains(listId)) {
+            checkedLists.value - listId
+        } else {
+            checkedLists.value + listId
+        }
     }
 
     /*
@@ -138,11 +139,6 @@ class ListRepository @Inject constructor(
     fun clearListChecks() {
         _checkedLists.value = emptySet()
     }
-
-    /*
-    * lists
-    * */
-
 
     /*
     * common, called from lists and items

@@ -14,11 +14,11 @@ class TaskListAdapter(
     private var selectedLists: Set<Long> = emptySet()
 ) :
     ListAdapter<TaskListEntity, RecyclerView.ViewHolder>(TaskListDiff) {
-
-    fun updateSelectedIds(newSelectedSet: Set<Long>) {
-        selectedLists = newSelectedSet
-        notifyDataSetChanged()
-    }
+//
+//    fun updateSelectedIds(newSelectedSet: Set<Long>) {
+//        selectedLists = newSelectedSet
+//        notifyDataSetChanged() // todo: change to only refresh newly checked
+//    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return TaskListViewHolder(
@@ -35,8 +35,7 @@ class TaskListAdapter(
         (holder as TaskListViewHolder).bind(
             list = item,
             onClick = onClick,
-            onLongClick = onLongClick,
-            checked = selectedLists.contains(item.id)
+            onLongClick = onLongClick
         )
     }
 }
@@ -47,6 +46,6 @@ private object TaskListDiff : DiffUtil.ItemCallback<TaskListEntity>() {
     }
 
     override fun areContentsTheSame(oldItem: TaskListEntity, newItem: TaskListEntity): Boolean {
-        return oldItem == newItem
+        return oldItem == newItem && oldItem.checked == newItem.checked
     }
 }

@@ -4,18 +4,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavOptions
 import androidx.recyclerview.widget.ItemTouchHelper
 import com.example.todolist.R
 import com.example.todolist.data.local.entities.TaskListItem
 import com.example.todolist.databinding.FragmentTaskItemActiveBinding
 import com.example.todolist.dialogs.DeleteListsDialogFragment
-import com.example.todolist.dialogs.DeleteListsDialogFragmentDirections
 import com.example.todolist.dialogs.EditListNameDialogFragment
 import com.example.todolist.dialogs.NewItemDialogFragment
 import com.example.todolist.ui.common.helpers.navController
@@ -34,9 +35,16 @@ class FragmentTaskItemActive : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         setTitles()
 
+        val callback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                navigateBackToList()
+            }
+        }
+
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, callback)
 
         binding.itemsAppBar.setNavigationOnClickListener {
-            navController.navigate(R.id.action_selected_list_to_lists)
+            navigateBackToList()
         }
 
         binding.txtAppBar.setOnClickListener {
@@ -106,6 +114,14 @@ class FragmentTaskItemActive : Fragment() {
         return view
     }
 
+    private fun navigateBackToList() {
+        val navOptions = NavOptions.Builder()
+            .setPopUpTo(destinationId = R.id.task_lists, inclusive = false)
+            .build()
+
+        navController.navigate(R.id.task_lists, null, navOptions)
+    }
+
     private fun setupDialogObservers() {
         // add new item
         navController.currentBackStackEntry?.savedStateHandle?.getLiveData<String?>(
@@ -131,16 +147,15 @@ class FragmentTaskItemActive : Fragment() {
         )?.observe(viewLifecycleOwner) { result ->
             if (result != null && result != false) {
                 viewModel.deleteSelectedList()
-                val action = DeleteListsDialogFragmentDirections.actionDeleteListsToLists()
-                navController.navigate(action)
+                navigateBackToList()
             }
         }
     }
 
     private fun showNewItemDialog() {
         val action =
-            FragmentTaskItemActiveDirections.actionSelectedListToDialogNewItem(viewModel.taskLists.value.find {
-                it.id == viewModel.selectedList.value
+            FragmentTaskItemActiveDirections.actionSelectedListToDialogNewItem(viewModel.taskListsWithPreview.value.find {
+                it.id == viewModel.selectedListId.value
             }?.listName ?: "<Unknown list>")
         navController.navigate(action)
     }
@@ -148,8 +163,8 @@ class FragmentTaskItemActive : Fragment() {
     private fun showEditListNameDialog() {
 
         val action =
-            FragmentTaskItemActiveDirections.actionSelectedListToDialogEditListName(viewModel.taskLists.value.find {
-                it.id == viewModel.selectedList.value
+            FragmentTaskItemActiveDirections.actionSelectedListToDialogEditListName(viewModel.taskListsWithPreview.value.find {
+                it.id == viewModel.selectedListId.value
             }?.listName ?: "<Unknown list>")
         navController.navigate(action)
     }

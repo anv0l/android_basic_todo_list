@@ -11,6 +11,7 @@ import javax.inject.Inject
 class PrefsViewModel @Inject constructor(private val prefsRepository: PrefsRepository) :
     ViewModel() {
     val listColumns = prefsRepository.listColumns
+    val maxPreviewItems = prefsRepository.maxPreviewItems
 
     fun initCols() {
         viewModelScope.launch {

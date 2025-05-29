@@ -13,10 +13,15 @@ class TaskListViewHolder(private val binding: VhTaskListBinding) :
     fun bind(
         list: TaskListEntity,
         onClick: (Int) -> Unit,
-        onLongClick: (Int) -> Unit,
-        checked: Boolean = false
+        onLongClick: (Int) -> Unit
     ) {
-        binding.lstMain.isChecked = checked //list.checked
+        if (list.checked) {
+            println("${list.id} is checked")
+        }
+        else {
+            println("${list.id} is UNchecked")
+        }
+        binding.lstMain.isChecked = list.checked
 
         listName.text = list.listName
         listContentPreview.removeAllViews()

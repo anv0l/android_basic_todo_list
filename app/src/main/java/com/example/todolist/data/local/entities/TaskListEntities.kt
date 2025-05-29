@@ -24,6 +24,27 @@ data class TaskListEntity(
     @Ignore
     var previewItems: List<TaskItemEntity> = emptyList()
     var checked: Boolean = false
+
+    override fun toString(): String {
+        return "TaskEntity: id=$id listName=$listName checked=$checked"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as TaskListEntity
+        return id == other.id && listName == other.listName && dateModified == other.dateModified && checked == other.checked && previewItems == other.previewItems
+    }
+
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + listName.hashCode()
+        result = 31 * result + dateModified.hashCode()
+        result = 31 * result + checked.hashCode()
+        result = 31 * result + previewItems.hashCode()
+        return result
+    }
 }
 
 sealed class TaskListItem {

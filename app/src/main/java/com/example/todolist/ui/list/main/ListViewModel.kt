@@ -12,7 +12,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
@@ -25,13 +24,11 @@ class ListViewModel @Inject constructor(
     private val prefsRepository: PrefsRepository
 ) :
     ViewModel() {
-    private val _taskLists = MutableStateFlow<List<TaskListEntity>>(emptyList())
-    val taskLists = _taskLists.asStateFlow()
+    private var _taskListsWithPreview = MutableStateFlow<List<TaskListEntity>>(emptyList())
+    val taskListsWithPreview = _taskListsWithPreview
 
-    private val _taskListsWithPreview = MutableStateFlow<List<TaskListEntity>>(emptyList())
-    val taskListsWithPreview = _taskListsWithPreview.asStateFlow()
+    val selectedListId = repository.selectedListId
 
-    val selectedList = repository.selectedListId
     val checkedLists = repository.checkedLists
     val checkedListsCount = repository.checkedListsCount
 
@@ -44,43 +41,26 @@ class ListViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            repository.getTaskLists().collect {
-                _taskLists.value = it
-            }
-        }
-
-        viewModelScope.launch {
             repository.getTaskListsWithPreview().collect {
                 _taskListsWithPreview.value = it
             }
         }
     }
 
-
-    /*debug*/
-    fun debugPrintDatabaseContents() {
-        viewModelScope.launch {
-            val lists = repository.getTaskLists().first()
-            println("task lists in db: ${lists.size}")
-
-            lists.forEach { list ->
-                print("List: ${list.listName} (id: ${list.id})")
-                val items = repository.observeItemsForList(list.id).first()
-                println("  Items: ${items.size}")
-                items.forEach { item ->
-                    println("   - ${item.itemText}")
-                }
-
-            }
-        }
-    }
+//    fun refreshPreviews() {
+//        viewModelScope.launch {
+//            repository.getTaskListsWithPreview().collect() { previews ->
+//                _taskListsWithPreview.value = previews
+//            }
+//        }
+//    }
 
     fun toggleList(listId: Long) {
         viewModelScope.launch { repository.toggleList(listId) }
     }
 
     fun clearListChecks() {
-        viewModelScope.launch { repository.clearListChecks() }
+        repository.clearListChecks()
     }
 
     private var toBeDoneTitle = "To be done"
@@ -93,8 +73,7 @@ class ListViewModel @Inject constructor(
 
     val selectedListItemsGrouped: StateFlow<List<TaskListItem>> =
         repository.itemsForSelectedList
-            .combine(selectedList) { items, _ ->
-//                println("combiner received items: ${items.size}")
+            .combine(selectedListId) { items, _ ->
                 val groupedItems = mutableListOf<TaskListItem>()
 
                 val uncheckedItems =
@@ -118,44 +97,24 @@ class ListViewModel @Inject constructor(
             )
 
     val selectedListName: StateFlow<String> =
-        repository.getListName(selectedList.value).combine(selectedList) { list, _ ->
-            list
+        repository.getListName(selectedListId.value).combine(selectedListId) { list, listId ->
+            println("selectedListName: $listId $list")
+            repository.getListName(listId).first()
+
+            //list
         }.stateIn(
             CoroutineScope(Dispatchers.Default),
-            SharingStarted.WhileSubscribed(5000),
+            SharingStarted.Eagerly,
             ""
         )
-
-//    val selectedListItemsSorted: StateFlow<List<TaskItem>> =
-//        taskLists.combine(selectedList) { lists, selectedId ->
-//            lists.firstOrNull { it.id == selectedId }?.taskList?.sortedWith(compareBy<TaskItem> { it.checked }.thenBy { item -> if (!item.checked) -item.dateModified.epochSecond else item.dateModified.epochSecond })
-//                ?: emptyList()
-//        }.stateIn(
-//            scope = CoroutineScope(Dispatchers.Default),
-//            started = SharingStarted.WhileSubscribed(5000),
-//            initialValue = emptyList()
-//        )
-
-//    fun updateAllLists(taskLists: List<TaskList>) {
-//        repository.updateAllLists(taskLists)
-//    }
 
     fun selectList(listId: Long) {
         repository.selectList(listId)
     }
 
-    // Lists actions
-//    fun addList(newList: TaskList) {
-//        repository.addList(newList)
-//    }
-
     fun addEmptyList(listName: String) {
         viewModelScope.launch { repository.addEmptyList(listName) }
     }
-
-//    fun updateList(updatedList: TaskList) {
-//        repository.updateList(updatedList)
-//    }
 
     fun renameList(listName: String) {
         viewModelScope.launch { repository.renameList(listName) }
@@ -166,12 +125,11 @@ class ListViewModel @Inject constructor(
     }
 
     fun deleteSelectedList() {
-        deleteList(selectedList.value)
+        deleteList(selectedListId.value)
     }
 
     fun deleteCheckedLists() {
         viewModelScope.launch { repository.deleteCheckedLists() }
     }
-
 
 }

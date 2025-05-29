@@ -28,12 +28,6 @@ interface TaskListDao {
     @Delete
     suspend fun deleteList(list: TaskListEntity)
 
-    @Query("select count(*) from task_lists where checked=1")
-    fun getSelectedListCount(): Flow<Int>
-
-    @Query("select * from task_lists where checked = 1")
-    fun getSelectedLists(): Flow<List<TaskListEntity>>
-
     @Query(
         "select * from task_items where list_id=:listId "
     )

@@ -21,19 +21,4 @@ object TaskListRepositoryImpl {
     ): ListRepository {
         return ListRepository(taskListDao, prefsRepository)
     }
-
-//    @Provides
-//    @Singleton
-//    fun providesItemsRepository(
-//        taskListDao: TaskListDao,
-//        commonRepository: CommonRepository,
-//    ): ItemsRepository {
-//        return ItemsRepository(taskListDao, commonRepository)
-//    }
-//
-//    @Provides
-//    @Singleton
-//    fun providesCommonRepository(taskListDao: TaskListDao): CommonRepository {
-//        return CommonRepository(taskListDao)
-//    }
 }

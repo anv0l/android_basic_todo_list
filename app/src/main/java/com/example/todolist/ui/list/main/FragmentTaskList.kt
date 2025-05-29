@@ -15,7 +15,9 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.todolist.R
 import com.example.todolist.databinding.FragmentTaskListsBinding
@@ -26,7 +28,6 @@ import com.example.todolist.dialogs.NewListDialogFragmentDirections
 import com.example.todolist.ui.common.PrefsViewModel
 import com.example.todolist.ui.common.helpers.navController
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -46,9 +47,6 @@ class FragmentTaskList : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // debug
-        viewModel.debugPrintDatabaseContents()
-
         prefsViewModel.initCols()
         prefsViewModel.initMaxPreviewItems()
 
@@ -59,29 +57,29 @@ class FragmentTaskList : Fragment() {
         }, viewLifecycleOwner)
 
         adapter = TaskListAdapter({ selectedListId ->
+            val selectedList = viewModel.taskListsWithPreview.value[selectedListId]
             val action = FragmentTaskListDirections.actionListsToList()
             if (viewModel.checkedListsCount.value > 0) {
-                viewModel.toggleList(viewModel.taskLists.value[selectedListId].id)
+                viewModel.toggleList(selectedList.id)
             } else {
-                viewModel.selectList(viewModel.taskLists.value[selectedListId].id)
+                viewModel.selectList(selectedList.id)
                 navController.navigate(action)
             }
         }, { checkedListId ->
-            viewModel.toggleList(viewModel.taskLists.value[checkedListId].id)
+            viewModel.toggleList(viewModel.taskListsWithPreview.value[checkedListId].id)
         }
         )
 
-        lifecycleScope.launch {
-            viewModel.taskListsWithPreview.combine(viewModel.checkedLists) { lists, selectedIds ->
-                Pair(lists, selectedIds)
-
-            }.collect { (lists, selectedId) ->
-                adapter.updateSelectedIds(selectedId)
-                adapter.submitList(lists)
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.taskListsWithPreview.collect { lists ->
+                    Log.d("viewModel", "taskListsWithPreview collected")
+                    adapter.submitList(lists)
+                }
             }
         }
 
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             viewModel.checkedListsCount.collect { count ->
                 if (count > 0) {
                     startActionModeIfNeeded()
@@ -104,7 +102,7 @@ class FragmentTaskList : Fragment() {
             }
         }
 
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             prefsViewModel.listColumns.collect { cols ->
                 binding.listsAppBar.menu.findItem(R.id.menu_toggle_grid_columns).setIcon(
                     ContextCompat.getDrawable(
@@ -113,7 +111,6 @@ class FragmentTaskList : Fragment() {
                     )
                 )
                 binding.recListActive.layoutManager = GridLayoutManager(requireContext(), cols)
-
             }
         }
 
@@ -121,7 +118,6 @@ class FragmentTaskList : Fragment() {
         setupRecyclerView()
         setupActionBar()
         setupFab()
-        setupDialogObservers()
     }
 
     override fun onCreateView(
@@ -167,6 +163,7 @@ class FragmentTaskList : Fragment() {
     }
 
     private fun setupDialogObserver() {
+        // new list
         navController.currentBackStackEntry?.savedStateHandle?.getLiveData<String?>(
             NewListDialogFragment.NEW_LIST_NAME
         )?.observe(viewLifecycleOwner) { result ->
@@ -174,6 +171,24 @@ class FragmentTaskList : Fragment() {
                 viewModel.addEmptyList(result)
                 val action = NewListDialogFragmentDirections.actionDialogNewListToTaskItems()
                 navController.navigate(action)
+            }
+        }
+
+        // edit list
+        navController.currentBackStackEntry?.savedStateHandle?.getLiveData<String?>(
+            EditListNameDialogFragment.NEW_LIST_NAME
+        )?.observe(viewLifecycleOwner) { result ->
+            if (result != null && result != "") {
+                viewModel.renameList(result)
+            }
+        }
+
+        // delete checked lists
+        navController.currentBackStackEntry?.savedStateHandle?.getLiveData<Boolean?>(
+            DeleteListsDialogFragment.DELETE_LISTS_RESULT
+        )?.observe(viewLifecycleOwner) { result ->
+            if (result != null && result != false) {
+                viewModel.deleteCheckedLists()
             }
         }
     }
@@ -199,22 +214,6 @@ class FragmentTaskList : Fragment() {
                 actionModeStarting = false
             }
         }
-//        if (viewModel.checkedListsCount.value > 0 && actionMode == null && !actionModeStarting) {
-//            actionModeStarting = true
-//            view?.post {
-//                try {
-//                    actionMode = requireActivity().startActionMode(actionModeCallback)!!
-//                    Log.d("ActionMode", "Started successfully")
-//                } catch (
-//                    e: Exception
-//                ) {
-//                    Log.d("ActionMode", "$e")
-//                } finally {
-//                    actionModeStarting = false
-//                    Log.d("ActionMode", "Finally proc")
-//                }
-//            }
-//        }
     }
 
     private fun tryStartingActionMode(): ActionMode? {
@@ -251,8 +250,7 @@ class FragmentTaskList : Fragment() {
                 }
 
                 R.id.menu_import_list -> {
-                    temp = "Import list"
-                    Toast.makeText(requireContext(), temp, Toast.LENGTH_LONG).show()
+                    navController.navigate(FragmentTaskListDirections.actionListsToImport())
                     true
                 }
 
@@ -317,33 +315,11 @@ class FragmentTaskList : Fragment() {
                 valid = false
                 if (destroyed) return
                 destroyed = true
-//                Log.d("ActionMode", mode?.type.toString())
-//                Log.d("ActionMode", "onDestroyActionMode")
-//                Log.d("ActionMode", Thread.currentThread().stackTrace.toList().toString())
                 binding.listsAppBar.isEnabled = true
                 binding.listsAppBar.alpha = 1f
                 binding.listsAppBar.menu.setGroupEnabled(0, true)
                 viewModel.clearListChecks()
                 actionMode = null
-
-            }
-        }
-    }
-
-    private fun setupDialogObservers() {
-        navController.currentBackStackEntry?.savedStateHandle?.getLiveData<String?>(
-            EditListNameDialogFragment.NEW_LIST_NAME
-        )?.observe(viewLifecycleOwner) { result ->
-            if (result != null && result != "") {
-                viewModel.renameList(result)
-            }
-        }
-
-        navController.currentBackStackEntry?.savedStateHandle?.getLiveData<Boolean?>(
-            DeleteListsDialogFragment.DELETE_LISTS_RESULT
-        )?.observe(viewLifecycleOwner) { result ->
-            if (result != null && result != false) {
-                viewModel.deleteCheckedLists()
             }
         }
     }
@@ -352,7 +328,7 @@ class FragmentTaskList : Fragment() {
         val listId = viewModel.checkedLists.value.first()
         viewModel.selectList(listId)
         lifecycleScope.launch {
-            val listName = viewModel.getListName(viewModel.checkedLists.value.first())
+            val listName = viewModel.getListName(listId)
             val action = FragmentTaskListDirections.actionListsToDialogEditListName(listName)
             navController.navigate(action)
         }

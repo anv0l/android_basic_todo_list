@@ -14,10 +14,15 @@ class PrefsRepository @Inject constructor(private val context: Context) {
     private val LIST_COLUMNS_DOUBLE = 2
     private val LIST_COLUMN_DEFAULT = LIST_COLUMNS_DOUBLE
     private val LIST_COLUMNS_KEY = intPreferencesKey("list_columns")
+
+    private val DEFAULT_MAX_PREVIEW = 3
     private val LIST_MAX_PREVIEW_ITEMS_KEY = intPreferencesKey("max_preview_items")
 
     private val _listColumns = MutableStateFlow(LIST_COLUMN_DEFAULT)
     val listColumns = _listColumns.asStateFlow()
+
+    private val _maxPreviewItems = MutableStateFlow(DEFAULT_MAX_PREVIEW)
+    val maxPreviewItems = _maxPreviewItems.asStateFlow()
 
     suspend fun changeListView() {
         context.dataStore.edit { prefs ->
@@ -35,11 +40,6 @@ class PrefsRepository @Inject constructor(private val context: Context) {
             _listColumns.value = value
         }
     }
-
-    private val DEFAULT_MAX_PREVIEW = 3
-
-    private val _maxPreviewItems = MutableStateFlow(DEFAULT_MAX_PREVIEW)
-    val maxPreviewItems = _maxPreviewItems.asStateFlow()
 
     suspend fun initMaxPreviewItems() {
         context.dataStore.data.map { prefs ->

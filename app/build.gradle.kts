@@ -19,7 +19,7 @@ android {
     }
     defaultConfig {
         applicationId = "com.example.todolist"
-        minSdk = 29
+        minSdk = 31
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -60,15 +60,16 @@ dependencies {
     implementation(libs.flexbox)
     implementation(libs.androidx.room.common.jvm)
     implementation(libs.androidx.room.runtime.android)
-//    implementation(libs.androidx.room.runtime.jvm)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-//    implementation(libs.hilt.android)
     kapt(libs.androidx.room.compiler)
 
-    implementation("com.google.dagger:hilt-android:2.56.2")
-    ksp("com.google.dagger:hilt-android-compiler:2.56.2")
+    implementation(libs.hilt.android.v2562)
+    ksp(libs.hilt.android.compiler.v2562)
+
+    implementation(libs.androidx.glance.appwidget)
+    implementation(libs.androidx.work.runtime.ktx)
 
     implementation(libs.androidx.datastore.preferences)
 }

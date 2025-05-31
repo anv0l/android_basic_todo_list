@@ -46,8 +46,10 @@ class ListViewModel @Inject constructor(
         viewModelScope.launch {
             repository.getTaskListsWithPreview().collect {
                 _taskListsWithPreview.value = it
+                println(it)
             }
         }
+
     }
 
 //    fun refreshPreviews() {

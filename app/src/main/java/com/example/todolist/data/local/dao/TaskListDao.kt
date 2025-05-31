@@ -33,6 +33,7 @@ interface TaskListDao {
     )
     fun observeItemsForList(listId: Long): Flow<List<TaskItemEntity>>
 
+
     // todo: does updating check status need to update lastModified value as well?
     @Query(
         "update task_items " +
@@ -41,6 +42,14 @@ interface TaskListDao {
                 " where list_id=:listId and id=:itemId"
     )
     suspend fun toggleItem(listId: Long, itemId: Long, dateModified: Instant = Instant.now())
+
+    @Query(
+        "update task_items" +
+                "   set is_checked = not is_checked, " +
+                "       dateModified=:dateModified" +
+                " where id=:itemId"
+    )
+    suspend fun toggleItem(itemId: Long, dateModified: Instant = Instant.now())
 
     @Insert
     suspend fun insertItem(listItem: TaskItemEntity): Long
@@ -95,4 +104,18 @@ interface TaskListDao {
                 "   and is_checked = 0"
     )
     fun observeAllItemsChecked(listId: Long): Flow<Boolean>
+
+    /**
+     * Start: Widget
+     */
+    // this can be different from observeItemsForList
+    @Query("select * from task_items where list_id = :listId")
+    fun getListItemsForWidget(listId: Long): Flow<List<TaskItemEntity>>
+
+    @Query("select * from task_items where id = :itemId")
+    fun getItemForWidget(itemId: Long): Flow<TaskItemEntity>
+    /**
+     * End: Widget
+     */
+
 }

@@ -1,35 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/widget_list_main"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="5dp">
+    android:layout_height="wrap_content"
+    android:background="?android:attr/colorBackground"
+    android:orientation="vertical">
 
-    <LinearLayout
+    <RelativeLayout
+        android:id="@+id/widget_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="start"
         android:orientation="horizontal">
-
-        <TextView
-            android:id="@+id/txt_list_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="5dp"
-            android:text="List name placeholder"
-            android:textSize="20sp"
-            android:textStyle="bold" />
 
         <ImageButton
             android:id="@+id/btn_sync_list"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/sync_24dp" />
-    </LinearLayout>
+            android:layout_alignParentEnd="true"
+            android:src="@drawable/sync_24dp_000000"
+            tools:ignore="NotSibling" />
 
-    <LinearLayout
+        <TextView
+            android:id="@+id/txt_list_name_widget"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:gravity="start"
+            android:maxLines="1"
+            android:padding="5dp"
+            android:text="List name placeholder"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+    </RelativeLayout>
+
+    <ListView
         android:id="@+id/lst_list_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical" />
+        android:layout_below="@id/widget_header"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="4dp"
+        android:padding="5dp"
+        tools:listitem="@layout/widget_items" />
 
-</LinearLayout>
+</RelativeLayout>

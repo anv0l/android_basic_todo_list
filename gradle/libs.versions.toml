@@ -1,8 +1,11 @@
 [versions]
 agp = "8.8.2"
 datastorePreferences = "1.1.7"
+glanceAppwidget = "1.1.1"
 hiltAndroid = "2.44"
 hiltAndroidCompiler = "2.44"
+hiltAndroidCompilerVersion = "2.56.2"
+hiltAndroidVersion = "2.56.2"
 kotlin = "2.1.10"
 coreKtx = "1.16.0"
 junit = "4.13.2"
@@ -20,14 +23,19 @@ roomRuntimeAndroid = "2.7.1"
 roomRuntimeJvm = "2.7.1"
 room = "2.6.1"
 roomKtx = "2.7.1"
+workRuntimeKtx = "2.10.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
+androidx-glance-appwidget = { module = "androidx.glance:glance-appwidget", version.ref = "glanceAppwidget" }
+androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
 dagger-hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroidCompiler" }
 flexbox = { module = "com.google.android.flexbox:flexbox", version.ref = "flexbox" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCommonJvm" }
+hilt-android-compiler-v2562 = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroidCompilerVersion" }
+hilt-android-v2562 = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroidVersion" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }

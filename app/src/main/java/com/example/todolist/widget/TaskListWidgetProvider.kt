@@ -14,6 +14,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class TaskListWidgetProvider : AppWidgetProvider() {
     override fun onUpdate(
@@ -54,12 +55,15 @@ class TaskListWidgetProvider : AppWidgetProvider() {
     ) {
         val views = RemoteViews(context.packageName, R.layout.widget_list)
 
+        val listId = getListIdForWidget(context)
+        val listName = runBlocking {
+            getListNameForWidget(context, listId)
+        }
+        views.setTextViewText(R.id.txt_list_name_widget, listName)
+
         val intent = Intent(context, TaskListWidgetService::class.java).apply {
             putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-            putExtra(
-                "list_id",
-                getListIdForWidget(context)
-            ) // todo: need to get from settings I guess?
+            putExtra("list_id", listId) // todo: need to get from settings I guess?
         }
         views.setRemoteAdapter(R.id.lst_list_container, intent) // todo: get rid of deprecation
 
@@ -122,18 +126,15 @@ class TaskListWidgetProvider : AppWidgetProvider() {
         }
 
         private fun getListNameForWidget(context: Context, listId: Long): String {
-            var listName = "<can't get list name>"
-            kotlin.runCatching {
-                CoroutineScope(Dispatchers.IO).launch {
+            return runBlocking {
+                try {
                     val dao = (context.applicationContext as TodoApplication).database.taskListDao()
-                    listName = dao.getListName(listId).first()
+                    dao.getListName(listId).first()
+                } catch (e: Exception) {
+                    Log.e("Widget", "Couldn't get list name: $e")
+                    "Error getting name"
                 }
-            }.onFailure { e ->
-                Log.e("Widget", "Couldn't get list name: $e")
             }
-            return listName
         }
     }
 }
-
-

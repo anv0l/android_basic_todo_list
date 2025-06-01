@@ -82,8 +82,6 @@ class FragmentTaskList : Fragment() {
             viewModel.checkedLists.collect { checkedLists ->
                 if (checkedLists.isNotEmpty()) {
                     startActionModeIfNeeded("Selected: ${checkedLists.size}")
-//                    startActionMode()
-//                    actionMode?.title = "Selected: ${checkedLists.size}"
                     if (checkedLists.size > 1) {
                         actionMode?.menu?.findItem(R.id.menu_rename_list)?.isEnabled = false
                         actionMode?.menu?.findItem(R.id.menu_rename_list)?.iconTintBlendMode =
@@ -98,8 +96,6 @@ class FragmentTaskList : Fragment() {
                     }
                 } else {
                     cleanupActionMode()
-//                    actionMode = null
-
                 }
             }
         }
@@ -263,21 +259,13 @@ class FragmentTaskList : Fragment() {
                 }
 
                 R.id.menu_settings -> {
-                    temp = "Open settings"
-                    Toast.makeText(requireContext(), temp, Toast.LENGTH_LONG).show()
+                    navController.navigate(FragmentTaskListDirections.actionListsToSettings())
                     true
                 }
 
                 else -> false
             }
         }
-    }
-
-    private fun startActionMode() {
-        if (actionMode == null)
-
-            activity?.startActionMode(actionModeCallback)
-//            (AppCompatActivity) getActivity()).startSupportActionMode(actionModeCallback)
     }
 
     private fun setupActionModeCallback() {

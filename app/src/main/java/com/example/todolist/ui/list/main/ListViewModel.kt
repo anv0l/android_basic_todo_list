@@ -30,11 +30,6 @@ class ListViewModel @Inject constructor(
     val selectedListId = repository.selectedListId
 
     val checkedLists = repository.checkedLists
-//    private val _checkedListCount = MutableStateFlow<Int>(0)
-//    val checkedListsCount = _checkedListCount.asStateFlow()
-
-
-
 
     suspend fun getListName(listId: Long): String {
         return repository.getListName(listId).first()
@@ -46,19 +41,24 @@ class ListViewModel @Inject constructor(
         viewModelScope.launch {
             repository.getTaskListsWithPreview().collect {
                 _taskListsWithPreview.value = it
-                println(it)
+            }
+        }
+
+        viewModelScope.launch {
+            prefsRepository.maxPreviewItems.collect {
+                refreshPreviews()
             }
         }
 
     }
 
-//    fun refreshPreviews() {
-//        viewModelScope.launch {
-//            repository.getTaskListsWithPreview().collect() { previews ->
-//                _taskListsWithPreview.value = previews
-//            }
-//        }
-//    }
+    fun refreshPreviews() {
+        viewModelScope.launch {
+            repository.getTaskListsWithPreview().collect() { previews ->
+                _taskListsWithPreview.value = previews
+            }
+        }
+    }
 
     fun toggleList(listId: Long) {
         viewModelScope.launch { repository.toggleList(listId) }

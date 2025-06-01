@@ -30,6 +30,10 @@
         <action
             android:id="@+id/action_lists_to_import"
             app:destination="@id/fragment_import_list" />
+
+        <action
+            android:id="@+id/action_lists_to_settings"
+            app:destination="@id/fragment_settings" />
     </fragment>
 
     <dialog
@@ -152,6 +156,14 @@
         <action
             android:id="@+id/action_import_to_items"
             app:destination="@id/task_items" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_settings"
+        android:name="com.example.todolist.ui.options.FragmentSettings"
+        android:label="fragment_settings"
+        tools:layout="@layout/fragment_settings">
 
     </fragment>
 

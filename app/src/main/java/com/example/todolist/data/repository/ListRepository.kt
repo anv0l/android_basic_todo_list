@@ -60,17 +60,6 @@ class ListRepository @Inject constructor(
     }
 
     /*
-    * Lists
-    * */
-//    val checkedListsCount = checkedLists.combine(checkedLists) { lists, _ ->
-//        lists.size
-//    }.stateIn(
-//        scope = CoroutineScope(Dispatchers.Default),
-//        initialValue = 0,
-//        started = SharingStarted.WhileSubscribed(5000)
-//    )
-
-    /*
     * common
     * */
     fun getListName(listId: Long) = taskListDao.getListName(listId)
@@ -81,12 +70,6 @@ class ListRepository @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     val itemsForSelectedList: Flow<List<TaskItemEntity>> =
         selectedListId.flatMapLatest { listId -> taskListDao.observeItemsForList(listId) }
-
-    /*
-    * items
-    * */
-//    fun observeItemsForList(listId: Long): Flow<List<TaskItemEntity>> =
-//        taskListDao.observeItemsForList(listId)
 
     /*
     * lists
@@ -122,7 +105,6 @@ class ListRepository @Inject constructor(
     * lists
     * */
     fun toggleList(listId: Long) {
-        println("list $listId toggled")
         _checkedLists.value = if (checkedLists.value.contains(listId)) {
             checkedLists.value - listId
         } else {

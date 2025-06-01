@@ -8,4 +8,6 @@
     <string name="new_item_dialog_title">加项到 \'%1$s\'</string>
     <string name="new_item_dialog_positive">加</string>
     <string name="new_item_dialog_negative">取消</string>
+    <string name="main_appbar_title">TODO lists</string>
+    <string name="maximum_preview_items_1_s">Maximum preview items: %1$d</string>
 </resources>

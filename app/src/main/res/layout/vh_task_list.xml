@@ -25,6 +25,8 @@
             android:layout_height="wrap_content"
             android:paddingStart="10dp"
             android:paddingEnd="10dp"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:text="List Name"
             android:textSize="36sp"
             app:layout_constraintLeft_toLeftOf="parent"

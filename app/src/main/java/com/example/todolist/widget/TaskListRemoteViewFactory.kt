@@ -16,7 +16,7 @@ class TaskListRemoteViewFactory(
     private val intent: Intent
 ) : RemoteViewsFactory {
     private lateinit var items: List<TaskItemEntity>
-    private val listId = intent.getLongExtra("list_id", 1L)
+    private val listId = intent.getLongExtra("list_id", Long.MIN_VALUE)
     private var listName = "ListName placeholder"
     private lateinit var headerViews: RemoteViews
 

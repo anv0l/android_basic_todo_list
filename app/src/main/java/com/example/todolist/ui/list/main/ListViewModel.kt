@@ -1,5 +1,6 @@
 package com.example.todolist.ui.list.main
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.todolist.data.local.entities.TaskListEntity
@@ -132,6 +133,10 @@ class ListViewModel @Inject constructor(
 
     fun deleteCheckedLists() {
         viewModelScope.launch { repository.deleteCheckedLists() }
+    }
+
+    fun createWidgetForList(context: Context, listId: Long) {
+        repository.createWidgetForList(context, listId)
     }
 
 }

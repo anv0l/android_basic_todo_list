@@ -1,7 +1,5 @@
 package com.example.todolist.ui.items.active
 
-import android.appwidget.AppWidgetManager
-import android.content.ComponentName
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,7 +14,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
 import androidx.recyclerview.widget.ItemTouchHelper
 import com.example.todolist.R
-import com.example.todolist.TodoApplication
 import com.example.todolist.data.local.entities.TaskListItem
 import com.example.todolist.databinding.FragmentTaskItemActiveBinding
 import com.example.todolist.dialogs.DeleteListsDialogFragment
@@ -25,7 +22,6 @@ import com.example.todolist.dialogs.NewItemDialogFragment
 import com.example.todolist.ui.common.helpers.navController
 import com.example.todolist.ui.items.edit.EditItemViewModel
 import com.example.todolist.ui.list.main.ListViewModel
-import com.example.todolist.widget.TaskListWidgetProvider
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -36,21 +32,21 @@ class FragmentTaskItemActive : Fragment() {
     private lateinit var binding: FragmentTaskItemActiveBinding
     private lateinit var adapter: TaskItemAdapter
 
-    override fun onPause() {
-        super.onPause()
-
-//        if (isFinishing || !changingConfigurations) {
-            refreshAllWidgets(viewModel.selectedListId.value)
-//        }
-    }
-
-    private fun refreshAllWidgets(listId: Long) {
-        val context = TodoApplication().applicationContext
-        val manager = AppWidgetManager.getInstance(context)
-        val ids =
-            manager.getAppWidgetIds(ComponentName(context, TaskListWidgetProvider::class.java))
-        manager.notifyAppWidgetViewDataChanged(ids, R.id.lst_list_container)
-    }
+//    override fun onPause() {
+//        super.onPause()
+//
+////        if (isFinishing || !changingConfigurations) {
+//            refreshAllWidgets(viewModel.selectedListId.value)
+////        }
+//    }
+//
+//    private fun refreshAllWidgets(listId: Long) {
+//        val context = TodoApplication().applicationContext
+//        val manager = AppWidgetManager.getInstance(context)
+//        val ids =
+//            manager.getAppWidgetIds(ComponentName(context, TaskListWidgetProvider::class.java))
+//        manager.notifyAppWidgetViewDataChanged(ids, R.id.lst_list_container)
+//    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         setTitles()

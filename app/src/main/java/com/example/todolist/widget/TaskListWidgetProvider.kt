@@ -22,19 +22,35 @@ class TaskListWidgetProvider : AppWidgetProvider() {
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray
     ) {
-        val listId = getListIdForWidget(context)
-        val listName = getListNameForWidget(context, listId)
+        appWidgetIds.forEach { widgetId ->
+            val listId = getListIdForWidget(context, widgetId)
+            if (listId == Long.MIN_VALUE) {
+                val views = RemoteViews(context.packageName, R.layout.widget_unconfigured)
+                appWidgetManager.updateAppWidget(widgetId, views)
+            } else {
+                val listName = getListNameForWidget(context, listId)
 
-        val views = RemoteViews(context.packageName, R.layout.widget_list)
-        views.setTextViewText(R.id.txt_list_name_widget, listName)
+                val views = RemoteViews(context.packageName, R.layout.widget_list)
+                views.setTextViewText(R.id.txt_list_name_widget, listName)
 
-        val templateIntent =
-            makeTemplateIntent(context, ACTION_TOGGLE_ITEM, appWidgetIds, "list_id" to listId)
-        val pendingIntent = makePendingIntent(context, templateIntent)
-        views.setPendingIntentTemplate(R.id.lst_list_container, pendingIntent)
+                val templateIntent =
+                    makeTemplateIntent(
+                        context,
+                        ACTION_TOGGLE_ITEM,
+                        appWidgetIds,
+                        "list_id" to listId
+                    )
+                val pendingIntent = makePendingIntent(context, templateIntent)
+                views.setPendingIntentTemplate(R.id.lst_list_container, pendingIntent)
 
-        appWidgetIds.forEach { appWidgetId ->
-            updateAppWidget(context, appWidgetManager, appWidgetId)
+                updateAppWidget(context, appWidgetManager, widgetId)
+            }
+        }
+    }
+
+    override fun onDeleted(context: Context, appWidgetIds: IntArray?) {
+        appWidgetIds?.forEach { widgetId ->
+            deleteWidgetPrefs(context, widgetId)
         }
     }
 
@@ -70,14 +86,16 @@ class TaskListWidgetProvider : AppWidgetProvider() {
         )
     }
 
-    private fun updateAppWidget(
+    fun updateAppWidget(
         context: Context,
         appWidgetManager: AppWidgetManager,
         appWidgetId: Int
     ) {
+        val listId = getListIdForWidget(context, appWidgetId)
+        if (listId == Long.MIN_VALUE) return
+
         val views = RemoteViews(context.packageName, R.layout.widget_list)
 
-        val listId = getListIdForWidget(context)
         val listName = runBlocking {
             getListNameForWidget(context, listId)
         }
@@ -86,12 +104,14 @@ class TaskListWidgetProvider : AppWidgetProvider() {
         val intent = Intent(context, TaskListWidgetService::class.java).apply {
             putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
             putExtra("list_id", listId) // todo: need to get from settings I guess?
+            data = Uri.parse("todo://widget/id/#$appWidgetId")
         }
         views.setRemoteAdapter(R.id.lst_list_container, intent) // todo: get rid of deprecation
 
         val clickIntent = Intent(context, TaskListWidgetProvider::class.java).apply {
             action = ACTION_TOGGLE_ITEM
             putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+            data = Uri.parse("todo://widget/id/#$appWidgetId")
         }
         val pendingIntent = PendingIntent.getBroadcast(
             context,
@@ -124,9 +144,9 @@ class TaskListWidgetProvider : AppWidgetProvider() {
         Log.d("WidgetDebug", "All extras: ${intent.extras?.keySet()?.joinToString()}")
 
         if (intent.action == ACTION_TOGGLE_ITEM) {
-            val itemId = intent.getLongExtra(EXTRA_ITEM_ID, -1L)
+            val itemId = intent.getLongExtra(EXTRA_ITEM_ID, Long.MIN_VALUE)
 
-            if (itemId != -1L) {
+            if (itemId != Long.MIN_VALUE) {
                 val widgetId = intent.getIntExtra(
                     AppWidgetManager.EXTRA_APPWIDGET_ID,
                     AppWidgetManager.INVALID_APPWIDGET_ID
@@ -170,20 +190,31 @@ class TaskListWidgetProvider : AppWidgetProvider() {
         const val ACTION_REFRESH_ITEMS = "REFRESH_ITEMS"
         const val EXTRA_ITEM_ID = "ITEM_ID"
 
-        // todo: how can I get a listId for this exact widget? What if there are more than 1 widget?
-        private fun getListIdForWidget(context: Context): Long {
-            return -1L
+        fun saveListIdForWidget(context: Context, appWidgetId: Int, listId: Long) {
+            val prefs = context.getSharedPreferences("widget_prefs", Context.MODE_PRIVATE)
+            prefs.edit().putLong("widget_$appWidgetId", listId).apply()
         }
 
-        private fun getListNameForWidget(context: Context, listId: Long): String {
-            return runBlocking {
-                try {
-                    val dao = (context.applicationContext as TodoApplication).database.taskListDao()
-                    dao.getListName(listId).first()
-                } catch (e: Exception) {
-                    Log.e("Widget", "Couldn't get list name: $e")
-                    "Error getting name"
-                }
+        fun getListIdForWidget(context: Context, appWidgetId: Int): Long {
+            val prefs =
+                context.getSharedPreferences("widget_prefs", Context.MODE_PRIVATE)
+            return prefs.getLong("widget_$appWidgetId", Long.MIN_VALUE)
+        }
+
+        fun deleteWidgetPrefs(context: Context, appWidgetId: Int) {
+            val prefs = context.getSharedPreferences("widget_prefs", Context.MODE_PRIVATE)
+            prefs.edit().remove("widget_$appWidgetId").apply()
+        }
+    }
+
+    private fun getListNameForWidget(context: Context, listId: Long): String {
+        return runBlocking {
+            try {
+                val dao = (context.applicationContext as TodoApplication).database.taskListDao()
+                dao.getListName(listId).first()
+            } catch (e: Exception) {
+                Log.e("Widget", "Couldn't get list name: $e")
+                "Error getting name"
             }
         }
     }

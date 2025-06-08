@@ -311,6 +311,10 @@ class FragmentTaskList : Fragment() {
             override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
                 return when (item?.itemId) {
                     R.id.menu_add_to_home_screen -> {
+                        viewModel.createWidgetForList(
+                            requireContext(),
+                            viewModel.checkedLists.value.first()
+                        )
                         Toast.makeText(context, "Add to home screen", Toast.LENGTH_SHORT).show()
                         mode?.finish()
                         true

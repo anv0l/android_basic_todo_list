@@ -42,10 +42,6 @@ class ListRepository @Inject constructor(
     /*
    * Lists
    * */
-
-    /*
-   * Lists
-   * */
     fun getTaskListsWithPreview(): Flow<List<TaskListEntity>> {
         return taskListDao.getAllLists().combine(checkedLists) { lists, checkedIds ->
             lists.map { list ->
@@ -86,7 +82,6 @@ class ListRepository @Inject constructor(
     suspend fun addList(newList: TaskListEntity): Long {
         return taskListDao.insertList(newList)
     }
-
 
     /*
     * lists

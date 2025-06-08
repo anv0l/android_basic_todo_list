@@ -28,24 +28,46 @@ class TaskListWidgetProvider : AppWidgetProvider() {
         val views = RemoteViews(context.packageName, R.layout.widget_list)
         views.setTextViewText(R.id.txt_list_name_widget, listName)
 
-        val templateIntent = Intent(context, TaskListWidgetProvider::class.java).apply {
-            action = ACTION_TOGGLE_ITEM
-            putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetIds)
-            putExtra("list_id", listId)
-            data = Uri.parse("todo://widget/id/#$appWidgetIds")
-        }
-
-        val pendingIntent = PendingIntent.getBroadcast(
-            context,
-            0,
-            templateIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
-        )
+        val templateIntent =
+            makeTemplateIntent(context, ACTION_TOGGLE_ITEM, appWidgetIds, "list_id" to listId)
+        val pendingIntent = makePendingIntent(context, templateIntent)
         views.setPendingIntentTemplate(R.id.lst_list_container, pendingIntent)
 
         appWidgetIds.forEach { appWidgetId ->
             updateAppWidget(context, appWidgetManager, appWidgetId)
         }
+    }
+
+    private fun makeTemplateIntent(
+        context: Context,
+        actionName: String,
+        appWidgetIds: IntArray,
+        vararg extras: Pair<String, Any>
+    ): Intent {
+        return Intent(context, TaskListWidgetProvider::class.java).apply {
+            action = actionName
+            putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetIds)
+            data = Uri.parse("todo://widget/id/#$appWidgetIds")
+
+            extras.forEach { (key, value) ->
+                when (value) {
+                    is Int -> putExtra(key, value)
+                    is String -> putExtra(key, value)
+                    is Boolean -> putExtra(key, value)
+                    is Long -> putExtra(key, value)
+                    else -> throw IllegalArgumentException("Unsupported extra type: ${value.javaClass}")
+                }
+            }
+        }
+    }
+
+    private fun makePendingIntent(context: Context, templateIntent: Intent): PendingIntent {
+        return PendingIntent.getBroadcast(
+            context,
+            0,
+            templateIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+        )
     }
 
     private fun updateAppWidget(
@@ -79,8 +101,22 @@ class TaskListWidgetProvider : AppWidgetProvider() {
         )
         views.setPendingIntentTemplate(R.id.lst_list_container, pendingIntent)
 
+        val clickSyncIntent = Intent(context, TaskListWidgetProvider::class.java).apply {
+            action = ACTION_REFRESH_ITEMS
+            putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+            data = Uri.parse("todo://widget/id/#$appWidgetId")
+        }
+        val pendingSyncIntent = PendingIntent.getBroadcast(
+            context,
+            appWidgetId,
+            clickSyncIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+        )
+        views.setOnClickPendingIntent(R.id.btn_sync_list, pendingSyncIntent)
+
         appWidgetManager.updateAppWidget(appWidgetId, views)
     }
+
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
@@ -113,11 +149,25 @@ class TaskListWidgetProvider : AppWidgetProvider() {
                     }
                 }
             }
+        } else if (intent.action == ACTION_REFRESH_ITEMS) {
+            val widgetId = intent.getIntExtra(
+                AppWidgetManager.EXTRA_APPWIDGET_ID,
+                AppWidgetManager.INVALID_APPWIDGET_ID
+            )
+            if (widgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
+                AppWidgetManager.getInstance(context)
+                    .notifyAppWidgetViewDataChanged(widgetId, R.id.lst_list_container)
+
+                val manager = AppWidgetManager.getInstance(context)
+                updateAppWidget(context, manager, widgetId)
+            }
+
         }
     }
 
     companion object {
         const val ACTION_TOGGLE_ITEM = "CHECK_ITEM"
+        const val ACTION_REFRESH_ITEMS = "REFRESH_ITEMS"
         const val EXTRA_ITEM_ID = "ITEM_ID"
 
         // todo: how can I get a listId for this exact widget? What if there are more than 1 widget?

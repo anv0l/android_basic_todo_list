@@ -11,7 +11,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -39,6 +38,7 @@ class FragmentTaskList : Fragment() {
     private lateinit var adapter: TaskListAdapter
     private lateinit var actionModeCallback: ActionMode.Callback
     private var actionMode: ActionMode? = null
+    private var isFabMenuVisible = false
 
     // debug
     private var actionModeStarting = false
@@ -104,12 +104,6 @@ class FragmentTaskList : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             prefsViewModel.listColumns.collect { cols ->
-                binding.listsAppBar.menu.findItem(R.id.menu_toggle_grid_columns).setIcon(
-                    ContextCompat.getDrawable(
-                        requireContext(),
-                        if (cols == 1) R.drawable.view_comfy_alt_24dp else R.drawable.view_agenda_24dp
-                    )
-                )
                 binding.recListActive.layoutManager = GridLayoutManager(requireContext(), cols)
             }
         }
@@ -117,8 +111,46 @@ class FragmentTaskList : Fragment() {
         setupDialogObserver()
         setupRecyclerView()
         setupActionBar()
-        setupFab()
+        setupFabMenu()
     }
+
+    private fun setupFabMenu() {
+        binding.btnAddNewList.setOnClickListener { showNewListDialog() }
+        binding.fabMenuContainer.visibility = if (isFabMenuVisible) View.VISIBLE else View.INVISIBLE
+        binding.btnAddNewFab.setOnClickListener {
+            toggleFabMenu()
+        }
+        binding.fabAddNewListMenu.setOnClickListener {
+            showNewListDialog()
+            toggleFabMenu()
+        }
+        binding.fabImportListMenu.setOnClickListener {
+            navController.navigate(FragmentTaskListDirections.actionListsToImport())
+            toggleFabMenu()
+        }
+        binding.viewShadowView.setOnClickListener {
+            toggleFabMenu()
+        }
+    }
+
+    private fun toggleFabMenu() {
+        isFabMenuVisible = if (isFabMenuVisible) {
+            binding.fabMenuContainer.visibility = View.INVISIBLE
+            binding.fabAddNewListMenu.hide()
+            binding.fabImportListMenu.hide()
+            binding.btnAddListGroup.visibility = View.VISIBLE
+            binding.viewShadowView.visibility = View.INVISIBLE
+            false
+        } else {
+            binding.fabMenuContainer.visibility = View.VISIBLE
+            binding.fabAddNewListMenu.show()
+            binding.fabImportListMenu.show()
+            binding.btnAddListGroup.visibility = View.INVISIBLE
+            binding.viewShadowView.visibility = View.VISIBLE
+            true
+        }
+    }
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -133,7 +165,7 @@ class FragmentTaskList : Fragment() {
     override fun onResume() {
         super.onResume()
         view?.post {
-            if (viewModel.checkedLists.value.isNotEmpty()  && actionMode == null) {
+            if (viewModel.checkedLists.value.isNotEmpty() && actionMode == null) {
 //                startActionMode()
                 startActionModeIfNeeded("Selected: ${viewModel.checkedLists.value.size}")
             }
@@ -150,12 +182,6 @@ class FragmentTaskList : Fragment() {
     private fun setupRecyclerView() {
         val recyclerView = binding.recListActive
         recyclerView.adapter = adapter
-    }
-
-    private fun setupFab() {
-        binding.fabAddNewList.setOnClickListener {
-            showNewListDialog()
-        }
     }
 
     private fun showNewListDialog() {
@@ -241,28 +267,11 @@ class FragmentTaskList : Fragment() {
     }
 
     private fun setupActionBar() {
-        var temp: String
         binding.listsAppBar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.menu_show_sort_options -> {
                     val sortListBottomSheet = SortListBottomSheet()
                     sortListBottomSheet.show(parentFragmentManager, SortListBottomSheet.TAG)
-                    true
-                }
-
-                R.id.menu_toggle_grid_columns -> {
-                    prefsViewModel.changeListView()
-                    true
-                }
-
-                R.id.menu_add_empty_list -> {
-                    temp = "Add empty list"
-                    showNewListDialog()
-                    true
-                }
-
-                R.id.menu_import_list -> {
-                    navController.navigate(FragmentTaskListDirections.actionListsToImport())
                     true
                 }
 
@@ -286,13 +295,11 @@ class FragmentTaskList : Fragment() {
                 valid = true
                 mode?.menuInflater?.inflate(R.menu.menu_list_contextual, menu)
 
-//                MenuInflater(context).inflate(R.menu.menu_list_contextual, menu)
                 Log.d("ActionMode", "onCreateActionMode")
 
                 binding.listsAppBar.isEnabled = false
                 binding.listsAppBar.alpha = 0.5f
                 binding.listsAppBar.menu.setGroupEnabled(0, false)
-                binding.fabAddNewList.isEnabled = false
 
                 return true
             }
@@ -333,7 +340,6 @@ class FragmentTaskList : Fragment() {
                 binding.listsAppBar.isEnabled = true
                 binding.listsAppBar.alpha = 1f
                 binding.listsAppBar.menu.setGroupEnabled(0, true)
-                binding.fabAddNewList.isEnabled = true
                 viewModel.clearListChecks()
                 actionMode = null
             }

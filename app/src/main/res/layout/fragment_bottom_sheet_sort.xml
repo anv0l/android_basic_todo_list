@@ -11,8 +11,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Sort"
-        android:textStyle="bold"
         android:textSize="24sp"
+        android:textStyle="bold"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -24,6 +24,61 @@
         app:layout_constraintTop_toBottomOf="@id/bs_sort_title"
         tools:itemCount="3"
         tools:listitem="@layout/vh_sort_list_options" />
+
+    <Space
+        android:id="@+id/space_sort_display"
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        app:layout_constraintTop_toBottomOf="@id/lst_sort_types" />
+
+    <TextView
+        android:id="@+id/txt_toggle_grid_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Display"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/space_sort_display" />
+
+    <TextView
+        android:id="@+id/txt_toggle_grid_view"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Toggle grid view"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="@id/btn_toggle_grid_view"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="@id/btn_toggle_grid_view" />
+
+    <ImageButton
+        android:id="@+id/btn_toggle_grid_view"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@drawable/view_agenda_24dp"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/txt_toggle_grid_title" />
+
+    <TextView
+        android:id="@+id/txt_preview_count_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:drawablePadding="10dp"
+        android:text="@string/maximum_preview_items_1_s"
+        android:textSize="20sp"
+        app:layout_constraintTop_toBottomOf="@id/btn_toggle_grid_view" />
+
+    <com.google.android.material.slider.Slider
+        android:id="@+id/slider_preview_count"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="25dp"
+        android:layout_marginEnd="25dp"
+        android:stepSize="1"
+        android:valueFrom="1"
+        android:valueTo="8"
+        app:layout_constraintTop_toBottomOf="@id/txt_preview_count_description" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

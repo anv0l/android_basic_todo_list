@@ -16,7 +16,7 @@ class PrefsRepository @Inject constructor(private val context: Context) {
     private val SORT_TYPE_KEY = intPreferencesKey("sort_type")
     private val SORT_ORDER_KEY = intPreferencesKey("sort_order")
 
-    private val _listColumns = MutableStateFlow(LIST_COLUMN_DEFAULT)
+    private val _listColumns = MutableStateFlow<Int>(LIST_COLUMN_DEFAULT.index)
     val listColumns = _listColumns.asStateFlow()
 
     private val _maxPreviewItems = MutableStateFlow(-1)
@@ -27,16 +27,16 @@ class PrefsRepository @Inject constructor(private val context: Context) {
 
     suspend fun changeListView() {
         context.dataStore.edit { prefs ->
-            val currentValue = (prefs[LIST_COLUMNS_KEY] ?: LIST_COLUMN_DEFAULT)
+            val currentValue = (prefs[LIST_COLUMNS_KEY] ?: LIST_COLUMN_DEFAULT.index)
             _listColumns.value =
-                if (currentValue == LIST_COLUMNS_SINGLE) LIST_COLUMNS_DOUBLE else LIST_COLUMNS_SINGLE
+                if (currentValue == ListColumns.DOUBLE_COLUMN.index) ListColumns.SINGLE_COLUMN.index else ListColumns.DOUBLE_COLUMN.index
             prefs[LIST_COLUMNS_KEY] = _listColumns.value
         }
     }
 
     suspend fun initCols() {
         context.dataStore.data.map { prefs ->
-            (prefs[LIST_COLUMNS_KEY] ?: LIST_COLUMN_DEFAULT)
+            (prefs[LIST_COLUMNS_KEY] ?: LIST_COLUMN_DEFAULT.index)
         }.collect { value ->
             _listColumns.value = value
         }
@@ -76,16 +76,20 @@ class PrefsRepository @Inject constructor(private val context: Context) {
         }
     }
 
+
     companion object {
-        private const val LIST_COLUMNS_SINGLE = 1
-        private const val LIST_COLUMNS_DOUBLE = 2
-        private const val LIST_COLUMN_DEFAULT = LIST_COLUMNS_DOUBLE
+        enum class ListColumns(val index: Int, val listColumns: String) {
+            SINGLE_COLUMN(1, "Single"),
+            DOUBLE_COLUMN(2, "Double")
+        }
+
+        private val LIST_COLUMN_DEFAULT = ListColumns.DOUBLE_COLUMN
 
         private const val DEFAULT_MAX_PREVIEW = 3
 
         sealed class SortType(val index: Int, val sortTypeName: String) {
-            object Name : SortType(0, "Sort by name")
-            object TimeModified : SortType(1, "Sort by date modified")
+            data object Name : SortType(0, "Sort by name")
+            data object TimeModified : SortType(1, "Sort by date modified")
 
             fun byIndex(index: Int): SortType {
                 return when (index) {
@@ -134,7 +138,6 @@ class PrefsRepository @Inject constructor(private val context: Context) {
                         SortOrder.OrderDescending -> sortedByDescending { it.dateModified }
                     }
                 }
-
             }
         }
     }

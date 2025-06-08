@@ -129,6 +129,7 @@ class FragmentTaskItemActive : Fragment() {
         )?.observe(viewLifecycleOwner) { result ->
             if (result != null && result != "") {
                 itemsViewModel.addItem(result)
+                navController.currentBackStackEntry?.savedStateHandle?.set(NewItemDialogFragment.NEW_ITEM_NAME, "")// remove<String>(NewItemDialogFragment.NEW_ITEM_NAME)
             }
         }
 
@@ -138,6 +139,7 @@ class FragmentTaskItemActive : Fragment() {
         )?.observe(viewLifecycleOwner) { result ->
             if (result != null && result != "") {
                 viewModel.renameList(result)
+                navController.currentBackStackEntry?.savedStateHandle?.remove<String>(EditListNameDialogFragment.NEW_LIST_NAME)
             }
         }
 

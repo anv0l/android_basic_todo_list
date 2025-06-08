@@ -3,6 +3,7 @@ package com.example.todolist.data.repository
 import com.example.todolist.data.local.dao.TaskListDao
 import com.example.todolist.data.local.entities.TaskItemEntity
 import com.example.todolist.data.local.entities.TaskListEntity
+import com.example.todolist.data.repository.PrefsRepository.Companion.sortedByOption
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -46,8 +47,12 @@ class ListRepository @Inject constructor(
    * Lists
    * */
     fun getTaskListsWithPreview(): Flow<List<TaskListEntity>> {
-        return taskListDao.getAllListsSorted().combine(checkedLists) { lists, checkedIds ->
+        return taskListDao.getAllLists().combine(checkedLists) { lists, checkedIds ->
             lists.map { list ->
+                val maxPreviewCount = prefsRepository.maxPreviewItems.value
+                if (maxPreviewCount == -1) {
+                    prefsRepository.initCols()
+                }
                 val previews =
                     taskListDao.getTaskItemsPreview(list.id, prefsRepository.maxPreviewItems.value)
                         .first()
@@ -56,6 +61,10 @@ class ListRepository @Inject constructor(
                     checked = checkedIds.contains(list.id)
                 }
             }
+        }.combine(prefsRepository.sortOptions) { lists, sortOptions ->
+            sortOptions?.let { (_, _) ->
+                lists.sortedByOption(sortOptions)
+            } ?: lists
         }
     }
 

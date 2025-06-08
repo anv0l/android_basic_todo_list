@@ -23,7 +23,6 @@ class FragmentSettings: Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setupPreviewSettings()
-
     }
 
     private fun setupPreviewSettings() {

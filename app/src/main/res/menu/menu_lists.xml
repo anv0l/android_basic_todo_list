@@ -3,6 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/menu_show_sort_options"
+        android:icon="@drawable/sort_24dp"
+        android:title="Sort options"
+        app:showAsAction="always"
+        />
+
+    <item
         android:id="@+id/menu_toggle_grid_columns"
         android:icon="@drawable/view_comfy_alt_24dp"
         android:title="Сhange view"

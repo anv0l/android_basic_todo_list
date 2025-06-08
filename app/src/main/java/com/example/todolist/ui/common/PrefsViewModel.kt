@@ -12,12 +12,12 @@ class PrefsViewModel @Inject constructor(private val prefsRepository: PrefsRepos
     ViewModel() {
     val listColumns = prefsRepository.listColumns
     val maxPreviewItems = prefsRepository.maxPreviewItems
+    val sortOptions = prefsRepository.sortOptions
 
     fun initCols() {
         viewModelScope.launch {
             prefsRepository.initCols()
         }
-
     }
 
     fun changeListView() {
@@ -37,4 +37,19 @@ class PrefsViewModel @Inject constructor(private val prefsRepository: PrefsRepos
             prefsRepository.updateMaxPreviewItems(newValue)
         }
     }
+
+    fun initSortListOptions() {
+        viewModelScope.launch { prefsRepository.initSortListOptions() }
+    }
+
+    fun setSortingOptions(
+        newSortType: PrefsRepository.Companion.SortType,
+        newSortOrder: PrefsRepository.Companion.SortOrder
+    ) {
+        viewModelScope.launch {
+            prefsRepository.setSortListOptions(newSortType, newSortOrder)
+        }
+
+    }
+
 }

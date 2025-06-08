@@ -50,6 +50,22 @@
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_height="wrap_content">
+
+        <FrameLayout
+            android:id="@+id/bottom_sheet_sort"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+        </FrameLayout>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -59,13 +75,14 @@
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_add_new_list"
             style="?attr/floatingActionButtonStyle"
-            android:layout_margin="16dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_margin="16dp"
             android:src="@drawable/add_list_24dp"
             android:text="Add"
             android:textAlignment="textStart"
             app:icon="@drawable/add_list_24dp" />
+
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

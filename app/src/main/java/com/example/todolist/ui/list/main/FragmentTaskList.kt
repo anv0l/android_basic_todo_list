@@ -27,6 +27,7 @@ import com.example.todolist.dialogs.NewListDialogFragment
 import com.example.todolist.dialogs.NewListDialogFragmentDirections
 import com.example.todolist.ui.common.PrefsViewModel
 import com.example.todolist.ui.common.helpers.navController
+import com.example.todolist.ui.options.SortListBottomSheet
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -49,6 +50,7 @@ class FragmentTaskList : Fragment() {
 
         prefsViewModel.initCols()
         prefsViewModel.initMaxPreviewItems()
+        prefsViewModel.initSortListOptions()
 
         setupActionModeCallback()
         requireActivity().addMenuProvider(object : MenuProvider {
@@ -242,6 +244,12 @@ class FragmentTaskList : Fragment() {
         var temp: String
         binding.listsAppBar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
+                R.id.menu_show_sort_options -> {
+                    val sortListBottomSheet = SortListBottomSheet()
+                    sortListBottomSheet.show(parentFragmentManager, SortListBottomSheet.TAG)
+                    true
+                }
+
                 R.id.menu_toggle_grid_columns -> {
                     prefsViewModel.changeListView()
                     true

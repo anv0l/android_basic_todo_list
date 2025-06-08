@@ -13,8 +13,8 @@ import java.time.Instant
 @Dao
 interface TaskListDao {
     // todo: do we need to worry about paging yet?
-    @Query("Select * from task_lists order by dateModified desc")
-    fun getAllListsSorted(): Flow<List<TaskListEntity>>
+    @Query("Select * from task_lists")
+    fun getAllLists(): Flow<List<TaskListEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertList(list: TaskListEntity): Long

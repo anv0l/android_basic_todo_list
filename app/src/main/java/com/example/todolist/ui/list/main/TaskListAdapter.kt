@@ -14,12 +14,6 @@ class TaskListAdapter(
     private var selectedLists: Set<Long> = emptySet()
 ) :
     ListAdapter<TaskListEntity, RecyclerView.ViewHolder>(TaskListDiff) {
-//
-//    fun updateSelectedIds(newSelectedSet: Set<Long>) {
-//        selectedLists = newSelectedSet
-//        notifyDataSetChanged() // todo: change to only refresh newly checked
-//    }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return TaskListViewHolder(
             VhTaskListBinding.inflate(

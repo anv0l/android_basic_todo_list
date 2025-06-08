@@ -44,15 +44,17 @@
         app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/lists_app_bar_container"
+        app:layout_constraintVertical_bias="0.0"
         app:spanCount="2"
         tools:itemCount="3"
+        tools:layout_editor_absoluteX="0dp"
         tools:listitem="@layout/vh_task_list" />
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        android:layout_height="wrap_content">
+        app:layout_constraintLeft_toLeftOf="parent">
 
         <FrameLayout
             android:id="@+id/bottom_sheet_sort"
@@ -64,26 +66,72 @@
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/btn_add_list_group"
+        style="@style/Widget.Material3.Button.SplitButtonGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
+        android:padding="25dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent">
 
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_add_new_list"
-            style="?attr/floatingActionButtonStyle"
+        <Button
+            android:id="@+id/btn_add_new_list"
+            style="@style/Widget.App.Button.ElevatedButton.WithIcon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp"
+            android:backgroundTint="?attr/colorPrimaryContainer"
+            android:text="New list"
+            android:textColor="?attr/colorOnPrimaryContainer"
+            app:icon="@drawable/add_list_on_surface_24dp" />
+
+        <Button
+            android:id="@+id/btn_add_new_fab"
+            style="@style/Widget.App.Button.ElevatedButton.IconOnly"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="?attr/colorPrimaryContainer"
+            android:textColor="?attr/colorOnPrimaryContainer"
+            app:icon="@drawable/keyboard_arrow_up_24dp" />
+
+    </com.google.android.material.button.MaterialButtonToggleGroup>
+
+    <View
+        android:id="@+id/view_shadow_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0.9"
+        android:background="?attr/colorSurface"
+        android:visibility="gone" />
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/fab_menu_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@id/btn_add_list_group"
+        app:layout_constraintRight_toRightOf="@id/btn_add_list_group">
+
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/fab_import_list_menu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="25dp"
+            android:layout_marginBottom="95dp"
+            android:src="@drawable/import_list_24dp"
+            android:text="Import List"
+            app:icon="@drawable/import_list_24dp" />
+
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/fab_add_new_list_menu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="25dp"
             android:src="@drawable/add_list_24dp"
-            android:text="Add"
-            android:textAlignment="textStart"
+            android:text="Add list"
             app:icon="@drawable/add_list_24dp" />
-
-
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

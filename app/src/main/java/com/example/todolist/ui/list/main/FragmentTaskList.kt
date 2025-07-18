@@ -27,6 +27,7 @@ import com.example.todolist.dialogs.NewListDialogFragmentDirections
 import com.example.todolist.ui.common.PrefsViewModel
 import com.example.todolist.ui.common.helpers.navController
 import com.example.todolist.ui.options.SortListBottomSheet
+import com.example.todolist.widget.WidgetViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -34,6 +35,7 @@ import kotlinx.coroutines.launch
 class FragmentTaskList : Fragment() {
     private val viewModel: ListViewModel by viewModels()
     private val prefsViewModel: PrefsViewModel by viewModels()
+    private val widgetViewModel: WidgetViewModel by viewModels()
     private lateinit var binding: FragmentTaskListsBinding
     private lateinit var adapter: TaskListAdapter
     private lateinit var actionModeCallback: ActionMode.Callback
@@ -311,7 +313,7 @@ class FragmentTaskList : Fragment() {
             override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
                 return when (item?.itemId) {
                     R.id.menu_add_to_home_screen -> {
-                        viewModel.createWidgetForList(
+                        widgetViewModel.createWidgetForList(
                             requireContext(),
                             viewModel.checkedLists.value.first()
                         )

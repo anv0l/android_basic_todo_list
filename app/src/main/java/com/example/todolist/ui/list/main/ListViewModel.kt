@@ -1,6 +1,5 @@
 package com.example.todolist.ui.list.main
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.todolist.data.local.entities.TaskListEntity
@@ -32,7 +31,7 @@ class ListViewModel @Inject constructor(
 
     val checkedLists = repository.checkedLists
 
-    suspend fun getListName(listId: Long): String {
+    suspend fun getListName(listId: String): String {
         return repository.getListName(listId).first()
     }
 
@@ -61,7 +60,7 @@ class ListViewModel @Inject constructor(
         }
     }
 
-    fun toggleList(listId: Long) {
+    fun toggleList(listId: String) {
         viewModelScope.launch { repository.toggleList(listId) }
     }
 
@@ -111,7 +110,7 @@ class ListViewModel @Inject constructor(
             ""
         )
 
-    fun selectList(listId: Long) {
+    fun selectList(listId: String) {
         repository.selectList(listId)
     }
 
@@ -123,7 +122,7 @@ class ListViewModel @Inject constructor(
         viewModelScope.launch { repository.renameList(listName) }
     }
 
-    fun deleteList(listId: Long) {
+    fun deleteList(listId: String) {
         viewModelScope.launch { repository.deleteList(listId) }
     }
 
@@ -133,10 +132,6 @@ class ListViewModel @Inject constructor(
 
     fun deleteCheckedLists() {
         viewModelScope.launch { repository.deleteCheckedLists() }
-    }
-
-    fun createWidgetForList(context: Context, listId: Long) {
-        repository.createWidgetForList(context, listId)
     }
 
 }

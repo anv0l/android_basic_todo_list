@@ -5,11 +5,13 @@ import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import java.time.Instant
+import java.util.UUID
 
 @Entity(tableName = "task_items")
 data class TaskItemEntity(
-    @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    @ColumnInfo(name = "list_id") val listId: Long,
+    @PrimaryKey
+    val id: String = UUID.randomUUID().toString(),
+    @ColumnInfo(name = "list_id") val listId: String,
     val itemText: String,
     @ColumnInfo(name = "is_checked") val isChecked: Boolean = false,
     val dateModified: Instant = Instant.now()
@@ -17,7 +19,8 @@ data class TaskItemEntity(
 
 @Entity(tableName = "task_lists")
 data class TaskListEntity(
-    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    @PrimaryKey
+    val id: String = UUID.randomUUID().toString(),
     val listName: String,
     val dateModified: Instant = Instant.now()
 ) {

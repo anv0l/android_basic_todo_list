@@ -24,7 +24,7 @@ class TaskListWidgetProvider : AppWidgetProvider() {
     ) {
         appWidgetIds.forEach { widgetId ->
             val listId = getListIdForWidget(context, widgetId)
-            if (listId == Long.MIN_VALUE) {
+            if (listId == "") {
                 val views = RemoteViews(context.packageName, R.layout.widget_unconfigured)
                 appWidgetManager.updateAppWidget(widgetId, views)
             } else {
@@ -92,7 +92,7 @@ class TaskListWidgetProvider : AppWidgetProvider() {
         appWidgetId: Int
     ) {
         val listId = getListIdForWidget(context, appWidgetId)
-        if (listId == Long.MIN_VALUE) return
+        if (listId == "") return
 
         val views = RemoteViews(context.packageName, R.layout.widget_list)
 
@@ -103,7 +103,7 @@ class TaskListWidgetProvider : AppWidgetProvider() {
 
         val intent = Intent(context, TaskListWidgetService::class.java).apply {
             putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-            putExtra("list_id", listId) // todo: need to get from settings I guess?
+            putExtra("list_id", listId)
             data = Uri.parse("todo://widget/id/#$appWidgetId")
         }
         views.setRemoteAdapter(R.id.lst_list_container, intent) // todo: get rid of deprecation
@@ -132,7 +132,7 @@ class TaskListWidgetProvider : AppWidgetProvider() {
             clickSyncIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
         )
-        views.setOnClickPendingIntent(R.id.btn_sync_list, pendingSyncIntent)
+        views.setOnClickPendingIntent(R.id.txt_list_name_widget, pendingSyncIntent)
 
         appWidgetManager.updateAppWidget(appWidgetId, views)
     }
@@ -144,9 +144,9 @@ class TaskListWidgetProvider : AppWidgetProvider() {
         Log.d("WidgetDebug", "All extras: ${intent.extras?.keySet()?.joinToString()}")
 
         if (intent.action == ACTION_TOGGLE_ITEM) {
-            val itemId = intent.getLongExtra(EXTRA_ITEM_ID, Long.MIN_VALUE)
+            val itemId = intent.getStringExtra(EXTRA_ITEM_ID) ?: ""
 
-            if (itemId != Long.MIN_VALUE) {
+            if (itemId != "") {
                 val widgetId = intent.getIntExtra(
                     AppWidgetManager.EXTRA_APPWIDGET_ID,
                     AppWidgetManager.INVALID_APPWIDGET_ID
@@ -190,15 +190,15 @@ class TaskListWidgetProvider : AppWidgetProvider() {
         const val ACTION_REFRESH_ITEMS = "REFRESH_ITEMS"
         const val EXTRA_ITEM_ID = "ITEM_ID"
 
-        fun saveListIdForWidget(context: Context, appWidgetId: Int, listId: Long) {
+        fun saveListIdForWidget(context: Context, appWidgetId: Int, listId: String) {
             val prefs = context.getSharedPreferences("widget_prefs", Context.MODE_PRIVATE)
-            prefs.edit().putLong("widget_$appWidgetId", listId).apply()
+            prefs.edit().putString("widget_$appWidgetId", listId).apply()
         }
 
-        fun getListIdForWidget(context: Context, appWidgetId: Int): Long {
+        fun getListIdForWidget(context: Context, appWidgetId: Int): String {
             val prefs =
                 context.getSharedPreferences("widget_prefs", Context.MODE_PRIVATE)
-            return prefs.getLong("widget_$appWidgetId", Long.MIN_VALUE)
+            return prefs.getString("widget_$appWidgetId", "") ?: ""
         }
 
         fun deleteWidgetPrefs(context: Context, appWidgetId: Int) {
@@ -207,7 +207,7 @@ class TaskListWidgetProvider : AppWidgetProvider() {
         }
     }
 
-    private fun getListNameForWidget(context: Context, listId: Long): String {
+    private fun getListNameForWidget(context: Context, listId: String): String {
         return runBlocking {
             try {
                 val dao = (context.applicationContext as TodoApplication).database.taskListDao()

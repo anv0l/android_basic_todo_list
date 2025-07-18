@@ -11,7 +11,7 @@ import com.example.todolist.databinding.VhTaskListBinding
 class TaskListAdapter(
     private var onClick: (Int) -> Unit,
     private var onLongClick: (Int) -> Unit,
-    private var selectedLists: Set<Long> = emptySet()
+    private var selectedLists: Set<String> = emptySet()
 ) :
     ListAdapter<TaskListEntity, RecyclerView.ViewHolder>(TaskListDiff) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {

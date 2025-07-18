@@ -40,7 +40,7 @@ class FragmentTaskItemActive : Fragment() {
 ////        }
 //    }
 //
-//    private fun refreshAllWidgets(listId: Long) {
+//    private fun refreshAllWidgets(listId: String) {
 //        val context = TodoApplication().applicationContext
 //        val manager = AppWidgetManager.getInstance(context)
 //        val ids =

@@ -13,10 +13,10 @@ import kotlinx.coroutines.runBlocking
 
 class TaskListRemoteViewFactory(
     private val context: Context,
-    private val intent: Intent
+    intent: Intent
 ) : RemoteViewsFactory {
     private lateinit var items: List<TaskItemEntity>
-    private val listId = intent.getLongExtra("list_id", Long.MIN_VALUE)
+    private val listId = intent.getStringExtra("list_id") ?: ""
     private var listName = "ListName placeholder"
     private lateinit var headerViews: RemoteViews
 
@@ -90,7 +90,7 @@ class TaskListRemoteViewFactory(
     }
 
     override fun getItemId(position: Int): Long {
-        return items[position].id
+        return 0//items[position].id // TODO: switching to UUID broke this
     }
 
     override fun hasStableIds(): Boolean {

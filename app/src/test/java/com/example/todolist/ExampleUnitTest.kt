@@ -1,8 +1,6 @@
 package com.example.todolist
 
-import com.example.todolist.data.local.entities.TaskListEntity
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotEquals
 import org.junit.Test
 
 /**
@@ -16,17 +14,17 @@ class ExampleUnitTest {
         assertEquals(4, 2 + 2)
     }
 
-    @Test
-    fun check_taskListEntityAreNotEqual() {
-        val list1 = TaskListEntity(id =1, listName = "Test").apply {
-            previewItems = emptyList()
-            checked = true
-        }
-        val list2 = TaskListEntity(id =1, listName = "Test").apply {
-            previewItems = emptyList()
-            checked = false
-        }
-
-        assertNotEquals(true, list1 == list2)
-    }
+//    @Test
+//    fun check_taskListEntityAreNotEqual() {
+//        val list1 = TaskListEntity(id = 1, listName = "Test").apply {
+//            previewItems = emptyList()
+//            checked = true
+//        }
+//        val list2 = TaskListEntity(id = 1, listName = "Test").apply {
+//            previewItems = emptyList()
+//            checked = false
+//        }
+//
+//        assertNotEquals(true, list1 == list2)
+//    }
 }

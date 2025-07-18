@@ -14,9 +14,9 @@ class WidgetConfigureReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent?) {
         val appWidgetId =
             intent?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, Int.MIN_VALUE) ?: Int.MIN_VALUE
-        val listId = intent?.getLongExtra("list_id", Long.MIN_VALUE) ?: Long.MIN_VALUE
+        val listId = intent?.getStringExtra("list_id") ?: ""
 
-        if (appWidgetId != Int.MIN_VALUE && listId != Long.MIN_VALUE) {
+        if (appWidgetId != Int.MIN_VALUE && listId != "") {
             TaskListWidgetProvider.saveListIdForWidget(context, appWidgetId, listId)
 
             val appWidgetManager = AppWidgetManager.getInstance(context)

@@ -11,12 +11,12 @@ import com.example.todolist.databinding.VhTaskItemEditBinding
 class EditTaskItemAdapter(
     private val onClick: (Int) -> Unit,
     private val onLongClick: (Int) -> Unit,
-    private var checkedItems: Set<Long> = emptySet()
+    private var checkedItems: Set<String> = emptySet()
 ) :
     ListAdapter<TaskItemEntity, RecyclerView.ViewHolder>(EditTaskItemDiff) {
 
 
-    fun updateCheckedItems(newCheckedItem: Set<Long>) {
+    fun updateCheckedItems(newCheckedItem: Set<String>) {
         checkedItems = newCheckedItem
         notifyDataSetChanged()
     }

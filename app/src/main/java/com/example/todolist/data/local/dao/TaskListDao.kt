@@ -17,13 +17,13 @@ interface TaskListDao {
     fun getAllLists(): Flow<List<TaskListEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertList(list: TaskListEntity): Long
+    suspend fun insertList(list: TaskListEntity)
 
     @Query("select listName from task_lists tl where id=:listId")
-    fun getListName(listId: Long): Flow<String>
+    fun getListName(listId: String): Flow<String>
 
     @Query("update task_lists set listName=:listName where id = :listId")
-    suspend fun renameList(listId: Long, listName: String)
+    suspend fun renameList(listId: String, listName: String)
 
     @Delete
     suspend fun deleteList(list: TaskListEntity)
@@ -31,7 +31,7 @@ interface TaskListDao {
     @Query(
         "select * from task_items where list_id=:listId "
     )
-    fun observeItemsForList(listId: Long): Flow<List<TaskItemEntity>>
+    fun observeItemsForList(listId: String): Flow<List<TaskItemEntity>>
 
 
     // todo: does updating check status need to update lastModified value as well?
@@ -41,7 +41,7 @@ interface TaskListDao {
                 "       dateModified =:dateModified " +
                 " where list_id=:listId and id=:itemId"
     )
-    suspend fun toggleItem(listId: Long, itemId: Long, dateModified: Instant = Instant.now())
+    suspend fun toggleItem(listId: String, itemId: String, dateModified: Instant = Instant.now())
 
     @Query(
         "update task_items" +
@@ -49,13 +49,13 @@ interface TaskListDao {
                 "       dateModified=:dateModified" +
                 " where id=:itemId"
     )
-    suspend fun toggleItem(itemId: Long, dateModified: Instant = Instant.now())
+    suspend fun toggleItem(itemId: String, dateModified: Instant = Instant.now())
 
     @Insert
-    suspend fun insertItem(listItem: TaskItemEntity): Long
+    suspend fun insertItem(listItem: TaskItemEntity)
 
     @Query("delete from task_items where id=:itemId")
-    suspend fun deleteItem(itemId: Long)
+    suspend fun deleteItem(itemId: String)
 
     // TODO: ordering and checkboxes
 //    @Query("select * from task_items where list_id=:listId order by dateModified desc limit :rowCount")
@@ -65,7 +65,7 @@ interface TaskListDao {
 //                "case when is_checked = 1 then -dateModified else dateModified end " +
                 "limit :rowCount"
     )
-    fun getTaskItemsPreview(listId: Long, rowCount: Int): Flow<List<TaskItemEntity>>
+    fun getTaskItemsPreview(listId: String, rowCount: Int): Flow<List<TaskItemEntity>>
 
     @Query(
         "update task_items" +
@@ -73,7 +73,7 @@ interface TaskListDao {
                 "      dateModified=:dateModified " +
                 "where list_id = :listId"
     )
-    suspend fun toggleAllItems(listId: Long, dateModified: Instant = Instant.now())
+    suspend fun toggleAllItems(listId: String, dateModified: Instant = Instant.now())
 
     /*
     * Swaps items in the list; we use dateModified as ordering value
@@ -92,10 +92,10 @@ interface TaskListDao {
                 "   end" +
                 " where id in(:oldListId, :newListId)"
     )
-    suspend fun swapItems(oldListId: Long, newListId: Long)
+    suspend fun swapItems(oldListId: String, newListId: String)
 
     @Query("update task_items set itemText=:itemName, dateModified = :dateModified  where id=:itemId")
-    suspend fun renameItem(itemId: Long, itemName: String, dateModified: Instant = Instant.now())
+    suspend fun renameItem(itemId: String, itemName: String, dateModified: Instant = Instant.now())
 
     @Query(
         "select count(*) = 0 " +
@@ -103,17 +103,17 @@ interface TaskListDao {
                 " where list_id = :listId" +
                 "   and is_checked = 0"
     )
-    fun observeAllItemsChecked(listId: Long): Flow<Boolean>
+    fun observeAllItemsChecked(listId: String): Flow<Boolean>
 
     /**
      * Start: Widget
      */
     // this can be different from observeItemsForList
     @Query("select * from task_items where list_id = :listId")
-    fun getListItemsForWidget(listId: Long): Flow<List<TaskItemEntity>>
+    fun getListItemsForWidget(listId: String): Flow<List<TaskItemEntity>>
 
     @Query("select * from task_items where id = :itemId")
-    fun getItemForWidget(itemId: Long): Flow<TaskItemEntity>
+    fun getItemForWidget(itemId: String): Flow<TaskItemEntity>
     /**
      * End: Widget
      */

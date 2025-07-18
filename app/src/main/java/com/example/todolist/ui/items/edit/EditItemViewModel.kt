@@ -37,13 +37,13 @@ class EditItemViewModel @Inject constructor(
         }
     }
 
-    private var _checkedItems = MutableStateFlow<Set<Long>>(emptySet())
+    private var _checkedItems = MutableStateFlow<Set<String>>(emptySet())
     val checkedItems = _checkedItems.asStateFlow()
 
-    private var _selectedItemId = MutableStateFlow<Long>(0)
+    private var _selectedItemId = MutableStateFlow<String>("")
     val selectedItemId = _selectedItemId.asStateFlow()
 
-    fun selectItem(itemId: Long) {
+    fun selectItem(itemId: String) {
         _selectedItemId.value = itemId
     }
 
@@ -56,7 +56,7 @@ class EditItemViewModel @Inject constructor(
             initialValue = emptyList()
         )
 
-    fun toggleItem(itemId: Long) {
+    fun toggleItem(itemId: String) {
         if (checkedItems.value.contains(itemId))
             _checkedItems.value -= itemId
         else
@@ -76,7 +76,7 @@ class EditItemViewModel @Inject constructor(
         removeAllChecks()
     }
 
-    fun renameItem(itemId: Long, itemText: String) {
+    fun renameItem(itemId: String, itemText: String) {
         viewModelScope.launch {
             itemsRepository.updateItem(itemId, itemText)
         }
@@ -87,11 +87,11 @@ class EditItemViewModel @Inject constructor(
         viewModelScope.launch { repository.addItem(itemText) }
     }
 
-    fun deleteItem(itemId: Long) {
+    fun deleteItem(itemId: String) {
         viewModelScope.launch { repository.deleteList(itemId) }
     }
 
-    fun toggleItem(listId: Long, itemId: Long) {
+    fun toggleItem(listId: String, itemId: String) {
         viewModelScope.launch {
             repository.toggleItem(
                 listId = listId,
@@ -101,12 +101,12 @@ class EditItemViewModel @Inject constructor(
 
     }
 
-    fun toggleItemForSelectedList(itemId: Long) {
+    fun toggleItemForSelectedList(itemId: String) {
         viewModelScope.launch { repository.toggleItemForSelectedList(itemId) }
 
     }
 
-    fun toggleAllItems(listId: Long) {
+    fun toggleAllItems(listId: String) {
         viewModelScope.launch { repository.toggleAllItems(listId) }
     }
 

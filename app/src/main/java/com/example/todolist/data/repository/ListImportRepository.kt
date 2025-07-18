@@ -14,7 +14,6 @@ class ListImportRepository @Inject constructor(
     suspend fun importList(listName: String, listItems: List<String>) {
         val listId = repository.addList(
             TaskListEntity(
-                id = 0,
                 listName = listName,
                 dateModified = Instant.now()
             )
@@ -23,7 +22,6 @@ class ListImportRepository @Inject constructor(
         listItems.forEach { item ->
             val itemId = taskListDao.insertItem(
                 TaskItemEntity(
-                    id = 0,
                     itemText = item,
                     dateModified = Instant.now(),
                     listId = listId

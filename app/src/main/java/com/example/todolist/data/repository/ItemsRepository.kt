@@ -7,11 +7,11 @@ class ItemsRepository @Inject constructor(
     private val taskListDao: TaskListDao
 ) {
 
-    suspend fun updateItem(itemId: Long, itemName: String) {
+    suspend fun updateItem(itemId: String, itemName: String) {
         taskListDao.renameItem(itemId, itemName)
     }
 
-    suspend fun deleteItem(itemId: Long) {
+    suspend fun deleteItem(itemId: String) {
         taskListDao.deleteItem(itemId)
     }
 }

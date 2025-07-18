@@ -14,6 +14,7 @@
         android:ellipsize="end"
         android:maxLines="1"
         android:text="Item placeholder"
+        android:textColor="@color/md_theme_onSurface"
         android:textSize="20sp"
         app:drawableLeftCompat="@drawable/check_box_24dp" />
 

@@ -1,18 +1,9 @@
 package com.example.todolist.data.repository
 
-import android.app.PendingIntent
-import android.appwidget.AppWidgetManager
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
-import android.util.Log
-import android.widget.Toast
 import com.example.todolist.data.local.dao.TaskListDao
 import com.example.todolist.data.local.entities.TaskItemEntity
 import com.example.todolist.data.local.entities.TaskListEntity
 import com.example.todolist.data.repository.PrefsRepository.Companion.sortedByOption
-import com.example.todolist.widget.TaskListWidgetProvider
-import com.example.todolist.widget.WidgetConfigureReceiver
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,21 +22,21 @@ class ListRepository @Inject constructor(
     private val prefsRepository: PrefsRepository
 ) {
 
-    private val _selectedListId = MutableStateFlow<Long>(-1)
-    val selectedListId: StateFlow<Long> = _selectedListId.asStateFlow()
+    private val _selectedListId = MutableStateFlow<String>("")
+    val selectedListId: StateFlow<String> = _selectedListId.asStateFlow()
 
-    private fun getSelectedListId(): Long {
+    private fun getSelectedListId(): String {
         return _selectedListId.value
     }
 
-    fun selectList(listId: Long) {
+    fun selectList(listId: String) {
         _selectedListId.value = listId
     }
 
     /*
     * Lists
     * */
-    private var _checkedLists = MutableStateFlow<Set<Long>>(emptySet())
+    private var _checkedLists = MutableStateFlow<Set<String>>(emptySet())
     val checkedLists = _checkedLists.asStateFlow()
 
     /*
@@ -76,7 +67,7 @@ class ListRepository @Inject constructor(
     /*
     * common
     * */
-    fun getListName(listId: Long) = taskListDao.getListName(listId)
+    fun getListName(listId: String) = taskListDao.getListName(listId)
 
     /*
     *  items
@@ -88,8 +79,9 @@ class ListRepository @Inject constructor(
     /*
     * lists
     * */
-    suspend fun addList(newList: TaskListEntity): Long {
-        return taskListDao.insertList(newList)
+    suspend fun addList(newList: TaskListEntity): String {
+        taskListDao.insertList(newList)
+        return newList.id
     }
 
     /*
@@ -99,7 +91,6 @@ class ListRepository @Inject constructor(
         val listId =
             addList(
                 TaskListEntity(
-                    id = 0,
                     listName = listName,
                     dateModified = Instant.now()
                 )
@@ -117,7 +108,7 @@ class ListRepository @Inject constructor(
     /*
     * lists
     * */
-    fun toggleList(listId: Long) {
+    fun toggleList(listId: String) {
         _checkedLists.value = if (checkedLists.value.contains(listId)) {
             checkedLists.value - listId
         } else {
@@ -135,7 +126,7 @@ class ListRepository @Inject constructor(
     /*
     * common, called from lists and items
     * */
-    suspend fun deleteList(listId: Long) {
+    suspend fun deleteList(listId: String) {
         val listEntity = TaskListEntity(
             id = listId,
             listName = "",
@@ -158,7 +149,6 @@ class ListRepository @Inject constructor(
     suspend fun addItem(itemText: String) {
         val currentListId = getSelectedListId()
         val taskList = TaskItemEntity(
-            id = 0,
             listId = currentListId,
             itemText = itemText,
             isChecked = false,
@@ -167,48 +157,21 @@ class ListRepository @Inject constructor(
         taskListDao.insertItem(taskList)
     }
 
-    suspend fun toggleItem(listId: Long, itemId: Long) {
+    suspend fun toggleItem(listId: String, itemId: String) {
         taskListDao.toggleItem(listId, itemId)
     }
 
-    suspend fun toggleItemForSelectedList(itemId: Long) {
+    suspend fun toggleItemForSelectedList(itemId: String) {
         toggleItem(getSelectedListId(), itemId)
     }
 
-    suspend fun toggleAllItems(listId: Long) {
+    suspend fun toggleAllItems(listId: String) {
         taskListDao.toggleAllItems(listId)
     }
 
-    fun observeAllItemsChecked(listId: Long): Flow<Boolean> {
+    fun observeAllItemsChecked(listId: String): Flow<Boolean> {
         return taskListDao.observeAllItemsChecked(listId)
             .distinctUntilChanged()
-    }
-
-
-    /*
-    * creating widget from application
-    * */
-    fun createWidgetForList(context: Context, listId: Long) {
-        val appWidgetManager = AppWidgetManager.getInstance(context)
-        val myProvider = ComponentName(context, TaskListWidgetProvider::class.java)
-
-        if (appWidgetManager.isRequestPinAppWidgetSupported) {
-            val successCallback = PendingIntent.getBroadcast(
-                context,
-                0,
-                Intent(context, WidgetConfigureReceiver::class.java).apply {
-                    action = "android.appwidget.action.APPWIDGET_PINNED"
-                    putExtra("list_id", listId)
-                },
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
-            )
-            val result = appWidgetManager.requestPinAppWidget(myProvider, null, successCallback)
-            if (!result) {
-                Log.e("Widget", "Failed to request widget pinning")
-            }
-        } else {
-            Toast.makeText(context, "Widget pinning not supported", Toast.LENGTH_SHORT).show()
-        }
     }
 
 }

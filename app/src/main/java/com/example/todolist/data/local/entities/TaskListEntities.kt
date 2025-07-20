@@ -4,9 +4,18 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import java.time.Instant
+
 import java.util.UUID
 
+@Serializable
 @Entity(tableName = "task_items")
 data class TaskItemEntity(
     @PrimaryKey
@@ -14,14 +23,17 @@ data class TaskItemEntity(
     @ColumnInfo(name = "list_id") val listId: String,
     val itemText: String,
     @ColumnInfo(name = "is_checked") val isChecked: Boolean = false,
+    @Serializable(with = InstantSerializer::class)
     val dateModified: Instant = Instant.now()
 )
 
+@Serializable
 @Entity(tableName = "task_lists")
 data class TaskListEntity(
     @PrimaryKey
     val id: String = UUID.randomUUID().toString(),
     val listName: String,
+    @Serializable(with = InstantSerializer::class)
     val dateModified: Instant = Instant.now()
 ) {
     @Ignore
@@ -53,4 +65,18 @@ data class TaskListEntity(
 sealed class TaskListItem {
     data class Header(val title: String) : TaskListItem()
     data class Item(val taskItem: TaskItemEntity) : TaskListItem()
+}
+
+object InstantSerializer : KSerializer<Instant> {
+    override val descriptor: SerialDescriptor =
+        PrimitiveSerialDescriptor("Instant", PrimitiveKind.STRING)
+
+    override fun deserialize(decoder: Decoder): Instant {
+        return Instant.parse(decoder.decodeString())
+    }
+
+    override fun serialize(encoder: Encoder, value: Instant) {
+        encoder.encodeString(value.toString())
+    }
+
 }

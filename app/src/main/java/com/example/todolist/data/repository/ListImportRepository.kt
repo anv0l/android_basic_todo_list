@@ -22,7 +22,7 @@ class ListImportRepository @Inject constructor(
         listItems.forEach { item ->
             val itemId = taskListDao.insertItem(
                 TaskItemEntity(
-                    itemText = item,
+                    itemText = item.trim(),
                     dateModified = Instant.now(),
                     listId = listId
                 )

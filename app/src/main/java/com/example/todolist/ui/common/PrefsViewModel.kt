@@ -13,10 +13,17 @@ class PrefsViewModel @Inject constructor(private val prefsRepository: PrefsRepos
     val listColumns = prefsRepository.listColumns
     val maxPreviewItems = prefsRepository.maxPreviewItems
     val sortOptions = prefsRepository.sortOptions
+    val isSyncEnabled = prefsRepository.isSyncEnabled
 
     fun initCols() {
         viewModelScope.launch {
             prefsRepository.initCols()
+        }
+    }
+
+    fun initSync() {
+        viewModelScope.launch {
+            prefsRepository.initSync()
         }
     }
 
@@ -50,6 +57,12 @@ class PrefsViewModel @Inject constructor(private val prefsRepository: PrefsRepos
             prefsRepository.setSortListOptions(newSortType, newSortOrder)
         }
 
+    }
+
+    fun toggleSync() {
+        viewModelScope.launch {
+            prefsRepository.toggleSync()
+        }
     }
 
 }

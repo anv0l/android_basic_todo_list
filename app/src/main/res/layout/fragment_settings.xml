@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:padding="5dp">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/app_bar_settings_container"
@@ -35,27 +37,53 @@
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-    <TextView
-        android:id="@+id/txt_preview_count_description"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:drawableLeft="@drawable/preview_24dp"
-        android:drawablePadding="10dp"
-        android:text="@string/maximum_preview_items_1_s"
-        android:textSize="18sp"
-        app:layout_constraintTop_toBottomOf="@id/app_bar_settings_container" />
 
-    <com.google.android.material.slider.Slider
-        android:id="@+id/slider_preview_count"
+    <com.google.android.material.materialswitch.MaterialSwitch
+        android:id="@+id/switch_sync"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="25dp"
-        android:layout_marginEnd="25dp"
-        android:stepSize="1"
-        android:valueFrom="1"
-        android:valueTo="8"
-        app:layout_constraintTop_toBottomOf="@id/txt_preview_count_description" />
+        android:minHeight="64dp"
+        android:textSize="20sp"
+        app:layout_constraintTop_toBottomOf="@id/app_bar_settings_container"
+        tools:layout_editor_absoluteX="0dp" />
+
+    <TextView
+        android:id="@+id/txt_sync_main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:text="Cloud synchronization"
+        android:textSize="20sp"
+        app:layout_constraintLeft_toLeftOf="@id/switch_sync"
+        app:layout_constraintTop_toTopOf="@id/switch_sync" />
+
+    <TextView
+        android:id="@+id/txt_sync_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Cloud synchronization current settings placeholder"
+        android:textSize="14sp"
+        app:layout_constraintLeft_toLeftOf="@id/txt_sync_main"
+        app:layout_constraintTop_toBottomOf="@id/txt_sync_main" />
+
+    <TextView
+        android:id="@+id/txt_auth_status"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Auth status placeholder let's check how long it can be"
+        android:textSize="20sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/btn_logout"
+        app:layout_constraintTop_toBottomOf="@id/switch_sync" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_logout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Logout"
+        app:layout_constraintBottom_toBottomOf="@id/txt_auth_status"
+        app:layout_constraintRight_toRightOf="@id/switch_sync"
+        app:layout_constraintTop_toTopOf="@id/txt_auth_status" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

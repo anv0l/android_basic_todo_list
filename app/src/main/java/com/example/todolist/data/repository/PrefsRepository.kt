@@ -1,20 +1,27 @@
 package com.example.todolist.data.repository
 
 import android.content.Context
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import com.example.todolist.data.local.entities.TaskListEntity
 import com.example.todolist.ui.common.helpers.dataStore
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class PrefsRepository @Inject constructor(private val context: Context) {
+class PrefsRepository @Inject constructor(@ApplicationContext private val context: Context) {
     private val LIST_COLUMNS_KEY = intPreferencesKey("list_columns")
     private val LIST_MAX_PREVIEW_ITEMS_KEY = intPreferencesKey("max_preview_items")
     private val SORT_TYPE_KEY = intPreferencesKey("sort_type")
     private val SORT_ORDER_KEY = intPreferencesKey("sort_order")
+
+    private val SYNC_ENABLED_KEY = booleanPreferencesKey("is_sync")
+
+    private val _isSyncEnabled = MutableStateFlow<Boolean>(false)
+    val isSyncEnabled = _isSyncEnabled.asStateFlow()
 
     private val _listColumns = MutableStateFlow<Int>(LIST_COLUMN_DEFAULT.index)
     val listColumns = _listColumns.asStateFlow()
@@ -25,12 +32,28 @@ class PrefsRepository @Inject constructor(private val context: Context) {
     private val _sortOptions = MutableStateFlow<Pair<SortType, SortOrder>?>(null)
     val sortOptions = _sortOptions.asStateFlow()
 
+    suspend fun toggleSync() {
+        context.dataStore.edit { prefs ->
+            val currentValue = (prefs[SYNC_ENABLED_KEY] ?: false)
+            _isSyncEnabled.value = !currentValue
+            prefs[SYNC_ENABLED_KEY] = _isSyncEnabled.value
+        }
+    }
+
     suspend fun changeListView() {
         context.dataStore.edit { prefs ->
             val currentValue = (prefs[LIST_COLUMNS_KEY] ?: LIST_COLUMN_DEFAULT.index)
             _listColumns.value =
                 if (currentValue == ListColumns.DOUBLE_COLUMN.index) ListColumns.SINGLE_COLUMN.index else ListColumns.DOUBLE_COLUMN.index
             prefs[LIST_COLUMNS_KEY] = _listColumns.value
+        }
+    }
+
+    suspend fun initSync() {
+        context.dataStore.data.map { prefs ->
+            (prefs[SYNC_ENABLED_KEY] ?: false)
+        }.collect { value ->
+            _isSyncEnabled.value = value
         }
     }
 

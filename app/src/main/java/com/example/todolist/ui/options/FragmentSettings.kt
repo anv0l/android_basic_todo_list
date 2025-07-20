@@ -5,48 +5,81 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
-import com.example.todolist.R
 import com.example.todolist.databinding.FragmentSettingsBinding
+import com.example.todolist.ui.auth.AuthState
+import com.example.todolist.ui.auth.AuthViewModel
 import com.example.todolist.ui.common.PrefsViewModel
-import com.google.android.material.slider.Slider
+import com.example.todolist.ui.common.helpers.navController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class FragmentSettings: Fragment() {
+class FragmentSettings : Fragment() {
     private lateinit var binding: FragmentSettingsBinding
-    private val prefsViewModel: PrefsViewModel by viewModels()
+    private val prefsViewModel: PrefsViewModel by activityViewModels()
+    private val authViewModel: AuthViewModel by activityViewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setupPreviewSettings()
-    }
+        prefsViewModel.initSync()
+        authViewModel.initCredentials()
+        authViewModel.initAuthState()
 
-    private fun setupPreviewSettings() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            prefsViewModel.maxPreviewItems.collect { value ->
-                binding.txtPreviewCountDescription.text =
-                    getString(R.string.maximum_preview_items_1_s, value)
-                binding.sliderPreviewCount.value = value.toFloat()
+        binding.switchSync.setOnClickListener {
+            when {
+                // can always turn it off
+                prefsViewModel.isSyncEnabled.value ->
+                    prefsViewModel.toggleSync()
+
+                // if user is authenticated, we can toggle sync anytime
+                authViewModel.authState.value == AuthState.AUTHENTICATED ->
+                    prefsViewModel.toggleSync()
+
+                // if user is not authenticated, we can't enable sync
+                // because it needs valid credentials
+                authViewModel.authState.value != AuthState.AUTHENTICATED -> {
+                    navController.navigate(FragmentSettingsDirections.actionSettingsToAuth())
+                }
             }
         }
 
-        binding.sliderPreviewCount.addOnSliderTouchListener(object : Slider.OnSliderTouchListener {
-            override fun onStartTrackingTouch(slider: Slider) {
+        binding.appBarSettings.setNavigationOnClickListener {
+            navController.popBackStack()
+        }
 
+        viewLifecycleOwner.lifecycleScope.launch {
+            prefsViewModel.isSyncEnabled.collect { isEnabled ->
+                binding.switchSync.isChecked = isEnabled
+                binding.txtSyncDescription.text =
+                    if (isEnabled) "Sync is enabled" else "Sync is disabled"
             }
+        }
 
-            override fun onStopTrackingTouch(slider: Slider) {
-                prefsViewModel.updateMaxPreviewItems(slider.value.toInt())
+        viewLifecycleOwner.lifecycleScope.launch {
+            authViewModel.authState.collect { state ->
+                with(binding) {
+                    when (state) {
+                        AuthState.NOT_LOGGED_IN -> {
+                            txtAuthStatus.text = "Not logged in"
+                            btnLogout.visibility = View.GONE
+                        }
+
+                        AuthState.AUTHENTICATED -> {
+                            txtAuthStatus.text =
+                                "Logged in as ${authViewModel.userCredential.value?.email}"
+                            btnLogout.visibility = View.VISIBLE
+                        }
+
+                        AuthState.WRONG_CREDENTIAL -> {
+                            txtAuthStatus.text = "Invalid credentials"
+                            btnLogout.visibility = View.GONE
+                        }
+                    }
+                }
             }
-        })
-
-        binding.sliderPreviewCount.addOnChangeListener { _, value, _ ->
-            binding.txtPreviewCountDescription.text =
-                getString(R.string.maximum_preview_items_1_s, value.toInt())
         }
     }
 

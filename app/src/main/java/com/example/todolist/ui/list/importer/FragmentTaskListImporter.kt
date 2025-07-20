@@ -24,7 +24,9 @@ class FragmentTaskListImporter : Fragment() {
 
         binding.btnImport.setOnClickListener {
             val listName = binding.txtNewList.text.toString()
-            val listItems = binding.txtImport.text.toString().split("\n").filter { it != "" }
+            val listItems = binding.txtImport.text.toString()
+                .split("\n")
+                .filter { it != "" }
 
             importerViewModel.importList(listName, listItems)
 
@@ -36,7 +38,7 @@ class FragmentTaskListImporter : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentImportTaskListBinding.inflate(inflater, container, false)
         return binding.root
     }

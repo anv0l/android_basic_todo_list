@@ -165,6 +165,17 @@
         android:label="fragment_settings"
         tools:layout="@layout/fragment_settings">
 
+        <action
+            android:id="@+id/action_settings_to_auth"
+            app:destination="@id/fragment_auth_" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_auth_"
+        android:name="com.example.todolist.ui.auth.FragmentAuth"
+        android:label="fragment_auth"
+        tools:layout="@layout/fragment_auth">
+
     </fragment>
 
 </navigation>

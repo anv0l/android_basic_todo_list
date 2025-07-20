@@ -24,6 +24,7 @@ import com.example.todolist.dialogs.DeleteListsDialogFragment
 import com.example.todolist.dialogs.EditListNameDialogFragment
 import com.example.todolist.dialogs.NewListDialogFragment
 import com.example.todolist.dialogs.NewListDialogFragmentDirections
+import com.example.todolist.ui.auth.AuthViewModel
 import com.example.todolist.ui.common.PrefsViewModel
 import com.example.todolist.ui.common.helpers.navController
 import com.example.todolist.ui.options.SortListBottomSheet
@@ -36,6 +37,7 @@ class FragmentTaskList : Fragment() {
     private val viewModel: ListViewModel by viewModels()
     private val prefsViewModel: PrefsViewModel by viewModels()
     private val widgetViewModel: WidgetViewModel by viewModels()
+    private val authViewModel: AuthViewModel by viewModels()
     private lateinit var binding: FragmentTaskListsBinding
     private lateinit var adapter: TaskListAdapter
     private lateinit var actionModeCallback: ActionMode.Callback
@@ -53,6 +55,9 @@ class FragmentTaskList : Fragment() {
         prefsViewModel.initCols()
         prefsViewModel.initMaxPreviewItems()
         prefsViewModel.initSortListOptions()
+        prefsViewModel.initSync()
+        authViewModel.initCredentials()
+        authViewModel.initAuthState()
 
         setupActionModeCallback()
         requireActivity().addMenuProvider(object : MenuProvider {

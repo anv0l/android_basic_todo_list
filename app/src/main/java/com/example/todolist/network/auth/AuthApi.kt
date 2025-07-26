@@ -1,8 +1,5 @@
-package com.example.todolist.network
+package com.example.todolist.network.auth
 
-import com.example.todolist.ui.auth.AuthResponse
-import com.example.todolist.ui.auth.LoginRequest
-import com.example.todolist.ui.auth.RegisterRequest
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
@@ -15,7 +12,7 @@ import retrofit2.http.POST
 private const val authUrl =
     "http://192.168.88.92:8000/auth/"
 
-interface ApiAuth {
+interface AuthApi {
     @POST("register")
     suspend fun register(@Body query: RegisterRequest): Response<AuthResponse>
 

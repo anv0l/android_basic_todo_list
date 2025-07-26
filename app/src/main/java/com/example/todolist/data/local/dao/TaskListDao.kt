@@ -118,4 +118,16 @@ interface TaskListDao {
      * End: Widget
      */
 
+    /**
+    * Start: Sync
+    */
+    @Query("select * from task_lists l" +
+           " where exists (select 1 from task_items i where i.list_id = l.id and i.dateModified > :lastSync)")
+    fun getUnsyncedLists(lastSync: Instant = Instant.MIN): Flow<List<TaskListEntity>>
+
+    @Query("select * from task_items where list_id=:listId and dateModified > :lastSync")
+    fun getUnsyncedItems(listId: String, lastSync: Instant = Instant.MIN): Flow<List<TaskItemEntity>>
+    /**
+     * End: Sync
+     */
 }

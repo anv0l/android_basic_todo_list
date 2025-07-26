@@ -65,4 +65,10 @@ class PrefsViewModel @Inject constructor(private val prefsRepository: PrefsRepos
         }
     }
 
+    fun disableSync() {
+        viewModelScope.launch {
+            prefsRepository.disableSync()
+        }
+    }
+
 }

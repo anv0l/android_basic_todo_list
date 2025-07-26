@@ -3,8 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:padding="5dp"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:padding="5dp">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/import_app_bar_container"
@@ -63,8 +63,8 @@
         android:layout_height="0dp"
         android:hint="Paste here"
         android:padding="5dp"
-        app:expandedHintEnabled="false"
         app:endIconMode="custom"
+        app:expandedHintEnabled="false"
         app:layout_constraintBottom_toTopOf="@id/btn_import"
         app:layout_constraintTop_toBottomOf="@id/txt_new_list_container"
         tools:ignore="NotSibling">

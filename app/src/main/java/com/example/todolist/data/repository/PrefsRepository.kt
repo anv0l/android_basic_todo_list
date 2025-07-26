@@ -40,6 +40,13 @@ class PrefsRepository @Inject constructor(@ApplicationContext private val contex
         }
     }
 
+    suspend fun disableSync() {
+        context.dataStore.edit { prefs ->
+            _isSyncEnabled.value = false
+            prefs[SYNC_ENABLED_KEY] = false
+        }
+    }
+
     suspend fun changeListView() {
         context.dataStore.edit { prefs ->
             val currentValue = (prefs[LIST_COLUMNS_KEY] ?: LIST_COLUMN_DEFAULT.index)

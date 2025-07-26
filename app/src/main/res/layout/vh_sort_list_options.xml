@@ -16,7 +16,9 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageButton
+    <ImageView
+        android:clickable="true"
+        android:padding="12dp"
         android:id="@+id/img_sort_order"
         android:layout_width="48dp"
         android:layout_height="48dp"

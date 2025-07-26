@@ -8,7 +8,6 @@ import com.example.todolist.ui.common.helpers.dataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
@@ -24,19 +23,11 @@ class EncryptedPrefsRepository @Inject constructor(@ApplicationContext private v
     private val _authState = MutableStateFlow<AuthState>(AuthState.NOT_LOGGED_IN)
     val authState = _authState.asStateFlow()
 
-    private val ACCESS_TOKEN = stringPreferencesKey("access_token")
-
-    suspend fun saveToken(accessToken: String) {
-        context.dataStore.edit { prefs ->
-            prefs[ACCESS_TOKEN] = accessToken
-        }
-    }
-
     suspend fun setAuthState(authState: AuthState) {
-        _authState.value = authState
         context.dataStore.edit { prefs ->
             prefs[AUTH_STATE] = authState.name
         }
+        _authState.value = authState
     }
 
     suspend fun initAuthState() {
@@ -59,12 +50,6 @@ class EncryptedPrefsRepository @Inject constructor(@ApplicationContext private v
         }
     }
 
-    suspend fun getAccessToken(): String? {
-        return context.dataStore.data.map { prefs ->
-            prefs[ACCESS_TOKEN]
-        }.first()
-    }
-
     suspend fun saveCredentials(email: String, password: String) {
         context.dataStore.edit { prefs ->
             prefs[CREDENTIALS_EMAIL] = email
@@ -73,13 +58,15 @@ class EncryptedPrefsRepository @Inject constructor(@ApplicationContext private v
         _userCredentials.value = Credentials(email, password)
     }
 
-    suspend fun clearCredentials() {
-        context.dataStore.edit { prefs ->
-            prefs[CREDENTIALS_EMAIL] = ""
-            prefs[CREDENTIALS_PASSWORD] = ""
-        }
-        _userCredentials.value = null
+    private suspend fun clearCredentials() {
+        saveCredentials("", "")
     }
+
+    suspend fun logout() {
+        setAuthState(AuthState.NOT_LOGGED_IN)
+        clearCredentials()
+    }
+
 }
 
 data class Credentials(

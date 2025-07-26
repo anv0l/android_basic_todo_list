@@ -1,5 +1,6 @@
 package com.example.todolist.ui.options
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,7 +12,9 @@ import com.example.todolist.databinding.FragmentSettingsBinding
 import com.example.todolist.ui.auth.AuthState
 import com.example.todolist.ui.auth.AuthViewModel
 import com.example.todolist.ui.common.PrefsViewModel
+import com.example.todolist.ui.common.UserAvatar
 import com.example.todolist.ui.common.helpers.navController
+import com.google.android.material.color.MaterialColors
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -24,9 +27,24 @@ class FragmentSettings : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        initSettings()
+
+        setupBindings()
+        setupObservers()
+    }
+
+    private fun initSettings() {
         prefsViewModel.initSync()
         authViewModel.initCredentials()
         authViewModel.initAuthState()
+    }
+
+    private fun setupBindings() {
+
+        binding.btnLogout.setOnClickListener {
+            authViewModel.logout()
+            prefsViewModel.disableSync()
+        }
 
         binding.switchSync.setOnClickListener {
             when {
@@ -50,34 +68,60 @@ class FragmentSettings : Fragment() {
             navController.popBackStack()
         }
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            prefsViewModel.isSyncEnabled.collect { isEnabled ->
-                binding.switchSync.isChecked = isEnabled
-                binding.txtSyncDescription.text =
-                    if (isEnabled) "Sync is enabled" else "Sync is disabled"
-            }
-        }
+    }
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            authViewModel.authState.collect { state ->
-                with(binding) {
+    private fun setupObservers() {
+        with(binding) {
+            viewLifecycleOwner.lifecycleScope.launch {
+                authViewModel.accessToken.collect { token ->
+                    txtDebug.text = token
+                }
+            }
+
+            viewLifecycleOwner.lifecycleScope.launch {
+                prefsViewModel.isSyncEnabled.collect { isEnabled ->
+                    switchSync.isChecked = isEnabled
+                    txtSyncDescription.text =
+                        if (isEnabled) "Sync is enabled" else "Sync is disabled"
+                }
+            }
+
+            viewLifecycleOwner.lifecycleScope.launch {
+                authViewModel.authState.collect { state ->
+
                     when (state) {
                         AuthState.NOT_LOGGED_IN -> {
                             txtAuthStatus.text = "Not logged in"
                             btnLogout.visibility = View.GONE
+                            imgUserAvatar.visibility = View.GONE
                         }
 
                         AuthState.AUTHENTICATED -> {
                             txtAuthStatus.text =
                                 "Logged in as ${authViewModel.userCredential.value?.email}"
                             btnLogout.visibility = View.VISIBLE
+                            imgUserAvatar.visibility = View.VISIBLE
+
+                            val foregroundColor = MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorPrimary, Color.BLACK)
+                            val backgroundColor = MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorSurfaceVariant, Color.LTGRAY)
+
+                            val identicon =
+                                UserAvatar.generateIdenticon(
+                                    authViewModel.userCredential.value?.email ?: "",
+                                    255,
+                                    foregroundColor = foregroundColor,
+                                    backgroundColor = backgroundColor
+                                )
+                            imgUserAvatar.setImageBitmap(identicon)
                         }
 
                         AuthState.WRONG_CREDENTIAL -> {
                             txtAuthStatus.text = "Invalid credentials"
                             btnLogout.visibility = View.GONE
+                            imgUserAvatar.visibility = View.GONE
                         }
                     }
+
                 }
             }
         }

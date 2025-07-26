@@ -1,5 +1,6 @@
-package com.example.todolist.ui.auth
+package com.example.todolist.network.auth
 
+import com.example.todolist.network.ErrorResponse
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -21,12 +22,6 @@ data class AuthResponse(
     @SerialName("access_token") val accessToken: String,
     @SerialName("token_type") val tokenType: String
 )
-
-@Serializable
-data class ErrorResponse(
-    val detail: String
-)
-
 
 sealed class AuthResult {
     data class Success(val authResponse: AuthResponse) : AuthResult()

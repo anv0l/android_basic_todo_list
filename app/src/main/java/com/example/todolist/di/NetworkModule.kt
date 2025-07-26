@@ -1,10 +1,12 @@
 package com.example.todolist.di
 
-import com.example.todolist.network.ApiAuth
-import com.example.todolist.network.AuthInterceptor
-import com.example.todolist.network.AuthManager
-import com.example.todolist.network.AuthService
-import com.example.todolist.network.buildRetrofit
+//import com.example.todolist.network.sync.SyncService
+import com.example.todolist.network.NetworkHelper
+import com.example.todolist.network.auth.AuthApi
+import com.example.todolist.network.auth.AuthInterceptor
+import com.example.todolist.network.auth.AuthManager
+import com.example.todolist.network.auth.AuthService
+import com.example.todolist.network.auth.buildRetrofit
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -32,7 +34,7 @@ class MainModuleProvider {
     @Provides
     fun okHttp(authInterceptor: AuthInterceptor): OkHttpClient {
         return OkHttpClient.Builder()
-            .callTimeout(30L, TimeUnit.SECONDS)
+            .callTimeout(10L, TimeUnit.SECONDS)
 //            .addInterceptor(authInterceptor)
             .addInterceptor(HttpLoggingInterceptor().apply {
                 setLevel(HttpLoggingInterceptor.Level.BASIC)
@@ -46,8 +48,8 @@ class MainModuleProvider {
     }
 
     @Provides
-    fun apiAuth(retrofit: Retrofit): ApiAuth {
-        return retrofit.create(ApiAuth::class.java)
+    fun apiAuth(retrofit: Retrofit): AuthApi {
+        return retrofit.create(AuthApi::class.java)
     }
 }
 
@@ -56,4 +58,11 @@ class MainModuleProvider {
 class AuthInterceptorProvider {
     @Provides
     fun provideAuthInterceptor(): AuthInterceptor = AuthInterceptor()
+}
+
+@Module
+@InstallIn(ViewModelComponent::class)
+class NetworkHelperProvider {
+    @Provides
+    fun provideNetworkHelper(): NetworkHelper = NetworkHelper()
 }

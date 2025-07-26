@@ -84,12 +84,12 @@
         <TextView
             android:id="@+id/txt_auth_mode"
             android:layout_width="wrap_content"
-            android:minWidth="120dp"
             android:layout_height="48dp"
             android:autoLink="all"
             android:clickable="true"
             android:gravity="center"
             android:linksClickable="true"
+            android:minWidth="120dp"
             android:text="switch mode"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintRight_toRightOf="parent"
@@ -100,20 +100,31 @@
             android:id="@+id/btn_login"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/login_24dp"
             android:text="Login"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@id/txt_password_container" />
 
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_register"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/person_24dp"
             android:text="Register"
-
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@id/txt_password_container" />
+
+        <ProgressBar
+            android:id="@+id/pbr_user_loading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/txt_password_container"
+            app:layout_constraintLeft_toLeftOf="parent"
+             />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -121,8 +132,8 @@
         android:id="@+id/auth_logout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="visible"
         android:orientation="vertical"
+        android:visibility="visible"
         app:layout_constraintTop_toBottomOf="@id/auth_cred_container">
 
         <TextView
@@ -137,6 +148,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:drawableLeft="@drawable/logout_24dp"
             android:text="Logout" />
     </LinearLayout>
 
@@ -146,14 +158,16 @@
         android:layout_height="wrap_content"
         android:text=""
         android:textColor="@color/md_theme_error"
-        app:layout_constraintBottom_toTopOf="@id/test"
+        app:layout_constraintTop_toBottomOf="@id/auth_logout"
+
         />
 
+
     <TextView
-        android:layout_width="match_parent"
         android:id="@+id/test"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:text="test"
-        android:layout_height="wrap_content" />
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

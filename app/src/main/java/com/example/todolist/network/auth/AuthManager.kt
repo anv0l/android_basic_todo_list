@@ -1,10 +1,6 @@
-package com.example.todolist.network
+package com.example.todolist.network.auth
 
-import com.example.todolist.ui.auth.AuthResponse
-import com.example.todolist.ui.auth.AuthResult
-import com.example.todolist.ui.auth.ErrorResponse
-import com.example.todolist.ui.auth.LoginRequest
-import com.example.todolist.ui.auth.RegisterRequest
+import com.example.todolist.network.ErrorResponse
 import kotlinx.serialization.json.Json
 import retrofit2.Response
 import javax.inject.Inject
@@ -13,14 +9,14 @@ interface AuthManager {
     suspend operator fun invoke(loginRequest: LoginRequest): AuthResult
     suspend operator fun invoke(registerRequest: RegisterRequest): AuthResult
 
-    class Impl @Inject constructor(private val apiAuth: ApiAuth) : AuthManager {
+    class Impl @Inject constructor(private val authApi: AuthApi) : AuthManager {
         override suspend fun invoke(loginRequest: LoginRequest): AuthResult {
-            val response = apiAuth.login(loginRequest)
+            val response = authApi.login(loginRequest)
             return parseResponse(response)
         }
 
         override suspend fun invoke(registerRequest: RegisterRequest): AuthResult {
-            val response = apiAuth.register(registerRequest)
+            val response = authApi.register(registerRequest)
             return parseResponse(response)
         }
     }

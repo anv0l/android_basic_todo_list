@@ -51,7 +51,8 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="@id/btn_toggle_grid_view" />
 
-    <ImageButton
+    <ImageView
+        android:padding="10dp"
         android:id="@+id/btn_toggle_grid_view"
         android:layout_width="48dp"
         android:layout_height="48dp"

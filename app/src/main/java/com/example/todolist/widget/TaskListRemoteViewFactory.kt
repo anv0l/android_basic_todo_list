@@ -33,7 +33,10 @@ class TaskListRemoteViewFactory(
                 if (it.isChecked) it.dateModified.toEpochMilli() else -it.dateModified.toEpochMilli()
             }
 
-            RemoteViews(context.packageName, R.layout.widget_list).setTextViewText(R.id.txt_list_name_widget, listName)
+            RemoteViews(
+                context.packageName,
+                R.layout.widget_list
+            ).setTextViewText(R.id.txt_list_name_widget, listName)
         }.onFailure { e ->
             Log.e("Widget", "Error loading data $e")
             items = emptyList()
@@ -58,11 +61,16 @@ class TaskListRemoteViewFactory(
             putExtra(TaskListWidgetProvider.EXTRA_ITEM_ID, item.id)
         }
         views.setOnClickFillInIntent(R.id.txt_item_text, fillInIntent)
+        views.setOnClickFillInIntent(R.id.img_widget_item, fillInIntent)
+
 
         val dao = (context.applicationContext as TodoApplication).database.taskListDao()
         runBlocking { listName = dao.getListName(listId).first() }
 
-        RemoteViews(context.packageName, R.layout.widget_list).setTextViewText(R.id.txt_list_name_widget, listName)
+        RemoteViews(
+            context.packageName,
+            R.layout.widget_list
+        ).setTextViewText(R.id.txt_list_name_widget, listName)
 
         return views
     }
@@ -73,12 +81,26 @@ class TaskListRemoteViewFactory(
         // It appears that AppWidgets can't properly handle SVG drawables
         // temporal fix by providing PNGs instead
         // TODO: must be reliant an a theme
-        val resId = if (item.isChecked) {
-            R.drawable.check_box_24dp_000000
-        } else {
-            R.drawable.check_box_outline_blank_24dp_000000
-        }
-        views.setTextViewCompoundDrawables(R.id.txt_item_text, resId, 0,0,0)// setImageViewResource(R.id.chk_item_widget, resId)
+//        val resId = if (item.isChecked) {
+//            R.drawable.check_box_24dp_000000
+//        } else {
+//            R.drawable.check_box_outline_blank_24dp_000000
+//        }
+
+        WidgetImageUtils.setVectorCheckbox(
+            context = context,
+            views = views,
+            imageViewId = R.id.img_widget_item,
+            isChecked = item.isChecked,
+        )
+
+//        views.setTextViewCompoundDrawables(
+//            R.id.txt_item_text,
+//            resId,
+//            0,
+//            0,
+//            0
+//        )// setImageViewResource(R.id.chk_item_widget, resId)
     }
 
     override fun getLoadingView(): RemoteViews {
@@ -96,5 +118,6 @@ class TaskListRemoteViewFactory(
     override fun hasStableIds(): Boolean {
         return true
     }
+
 
 }

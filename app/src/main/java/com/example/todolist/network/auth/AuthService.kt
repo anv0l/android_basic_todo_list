@@ -1,8 +1,5 @@
-package com.example.todolist.network
+package com.example.todolist.network.auth
 
-import com.example.todolist.ui.auth.AuthResult
-import com.example.todolist.ui.auth.LoginRequest
-import com.example.todolist.ui.auth.RegisterRequest
 import javax.inject.Inject
 
 interface AuthService {

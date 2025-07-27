@@ -14,12 +14,14 @@ import com.example.todolist.dialogs.DeleteItemDialogFragment
 import com.example.todolist.dialogs.EditItemNameDialogFragment
 import com.example.todolist.ui.common.helpers.navController
 import com.example.todolist.ui.items.active.TaskItemMoveCallback
+import com.example.todolist.ui.list.main.ListViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class FragmentEditTaskItem : Fragment() {
     private val editItemViewModel: EditItemViewModel by viewModels()
+    private val listViewModel: ListViewModel by viewModels()
     private lateinit var binding: FragmentTaskItemEditBinding
     private lateinit var adapter: EditTaskItemAdapter
 
@@ -48,6 +50,12 @@ class FragmentEditTaskItem : Fragment() {
         lifecycleScope.launch {
             editItemViewModel.itemsForSelectedList.collect { list ->
                 adapter.submitList(list)
+            }
+        }
+
+        lifecycleScope.launch {
+            listViewModel.selectedListName.collect { listName ->
+                binding.itemsAppBarContainer.title = listName
             }
         }
 

@@ -16,6 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
 class TaskListWidgetProvider : AppWidgetProvider() {
     override fun onUpdate(
@@ -23,15 +24,18 @@ class TaskListWidgetProvider : AppWidgetProvider() {
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray
     ) {
-        appWidgetIds.forEach { widgetId ->
-            val listId = getListIdForWidget(context, widgetId)
-            if (listId.isEmpty()) {
-                val views = RemoteViews(context.packageName, R.layout.widget_unconfigured)
-                appWidgetManager.updateAppWidget(widgetId, views)
-            } else {
-                updateAppWidget(context, appWidgetManager, widgetId)
+        CoroutineScope(Dispatchers.IO).launch {
+            appWidgetIds.forEach { widgetId ->
+                val listId = getListIdForWidget(context, widgetId)
+                if (listId.isEmpty()) {
+                    val views = RemoteViews(context.packageName, R.layout.widget_unconfigured)
+                    appWidgetManager.updateAppWidget(widgetId, views)
+                } else {
+                    updateAppWidget(context, appWidgetManager, widgetId)
+                }
             }
         }
+
     }
 
     override fun onDeleted(context: Context, appWidgetIds: IntArray?) {
@@ -44,40 +48,47 @@ class TaskListWidgetProvider : AppWidgetProvider() {
         val listId = getListIdForWidget(context, appWidgetId)
         if (listId.isEmpty()) return
 
-        val views = RemoteViews(context.packageName, R.layout.widget_list)
-        val listName = runBlocking { getListNameForWidget(context, listId) }
-        views.setTextViewText(R.id.txt_list_name_widget, listName)
+        CoroutineScope(Dispatchers.IO).launch {
+            val listName = getListNameForWidget(context, listId)
+            val items = createRemoteCollectionItems(context, listId, appWidgetId)
 
-        val items = createRemoteCollectionItems(context, listId, appWidgetId)
-        views.setRemoteAdapter(R.id.lst_list_container, items)
+            withContext(Dispatchers.Main) {
+                val views = RemoteViews(context.packageName, R.layout.widget_list).apply {
+                    setTextViewText(R.id.txt_list_name_widget, listName)
+                    setRemoteAdapter(R.id.lst_list_container, items)
 
-        val clickIntent = Intent(context, TaskListWidgetProvider::class.java).apply {
-            action = ACTION_TOGGLE_ITEM
-            putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-            data = Uri.parse("todo://widget/id/#$appWidgetId")
+                    val templateIntent = Intent(context, TaskListWidgetProvider::class.java).apply {
+                        action = ACTION_TOGGLE_ITEM
+                        putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+                        data = Uri.parse("todo://widget/id/#$appWidgetId")
+                    }
+
+                    val pendingIntent = PendingIntent.getBroadcast(
+                        context,
+                        appWidgetId,
+                        templateIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+                    )
+                    setPendingIntentTemplate(R.id.lst_list_container, pendingIntent)
+
+
+                    val clickSyncIntent =
+                        Intent(context, TaskListWidgetProvider::class.java).apply {
+                            action = ACTION_REFRESH_ITEMS
+                            putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+                            data = Uri.parse("todo://widget/id/#$appWidgetId")
+                        }
+                    val pendingSyncIntent = PendingIntent.getBroadcast(
+                        context,
+                        appWidgetId,
+                        clickSyncIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+                    )
+                    setOnClickPendingIntent(R.id.txt_list_name_widget, pendingSyncIntent)
+                }
+                appWidgetManager.updateAppWidget(appWidgetId, views)
+            }
         }
-        val pendingIntent = PendingIntent.getBroadcast(
-            context,
-            0,
-            clickIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
-        )
-        views.setPendingIntentTemplate(R.id.lst_list_container, pendingIntent)
-
-        val clickSyncIntent = Intent(context, TaskListWidgetProvider::class.java).apply {
-            action = ACTION_REFRESH_ITEMS
-            putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-            data = Uri.parse("todo://widget/id/#$appWidgetId")
-        }
-        val pendingSyncIntent = PendingIntent.getBroadcast(
-            context,
-            appWidgetId,
-            clickSyncIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
-        )
-        views.setOnClickPendingIntent(R.id.txt_list_name_widget, pendingSyncIntent)
-
-        appWidgetManager.updateAppWidget(appWidgetId, views)
 
     }
 
@@ -117,47 +128,40 @@ class TaskListWidgetProvider : AppWidgetProvider() {
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
 
-        Log.d("WidgetDebug", "All extras: ${intent.extras?.keySet()?.joinToString()}")
+        when (intent.action) {
+            ACTION_TOGGLE_ITEM -> {
+                val itemId = intent.getStringExtra(EXTRA_ITEM_ID) ?: ""
 
-        if (intent.action == ACTION_TOGGLE_ITEM) {
-            val itemId = intent.getStringExtra(EXTRA_ITEM_ID) ?: ""
+                if (itemId != "") {
+                    val widgetId = intent.getIntExtra(
+                        AppWidgetManager.EXTRA_APPWIDGET_ID,
+                        AppWidgetManager.INVALID_APPWIDGET_ID
+                    )
 
-            if (itemId != "") {
-                val widgetId = intent.getIntExtra(
-                    AppWidgetManager.EXTRA_APPWIDGET_ID,
-                    AppWidgetManager.INVALID_APPWIDGET_ID
-                )
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val dao =
+                            (context.applicationContext as TodoApplication).database.taskListDao()
 
-                CoroutineScope(Dispatchers.IO).launch {
-                    val dao =
-                        (context.applicationContext as TodoApplication).database.taskListDao()
+                        val currentItem = dao.getItemForWidget(itemId).first()
+                        dao.toggleItem(currentItem.id)
 
-                    val currentItem = dao.getItemForWidget(itemId).first()
-                    dao.toggleItem(currentItem.id)
-
-                    // TODO: replace with something that is not deprecated
-                    AppWidgetManager.getInstance(context)
-                        .notifyAppWidgetViewDataChanged(widgetId, R.id.lst_list_container)
-
-                    if (widgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
                         val manager = AppWidgetManager.getInstance(context)
                         updateAppWidget(context, manager, widgetId)
                     }
                 }
             }
-        } else if (intent.action == ACTION_REFRESH_ITEMS) {
-            val widgetId = intent.getIntExtra(
-                AppWidgetManager.EXTRA_APPWIDGET_ID,
-                AppWidgetManager.INVALID_APPWIDGET_ID
-            )
-            if (widgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
-                AppWidgetManager.getInstance(context)
-                    .notifyAppWidgetViewDataChanged(widgetId, R.id.lst_list_container) // TODO: deprecation
 
-                val manager = AppWidgetManager.getInstance(context)
-                updateAppWidget(context, manager, widgetId)
+            ACTION_REFRESH_ITEMS -> {
+                val widgetId = intent.getIntExtra(
+                    AppWidgetManager.EXTRA_APPWIDGET_ID,
+                    AppWidgetManager.INVALID_APPWIDGET_ID
+                )
+                if (widgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
+                    val manager = AppWidgetManager.getInstance(context)
+                    updateAppWidget(context, manager, widgetId)
+                }
+
             }
-
         }
     }
 

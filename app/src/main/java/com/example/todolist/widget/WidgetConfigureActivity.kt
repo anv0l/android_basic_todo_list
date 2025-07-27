@@ -11,7 +11,5 @@ class WidgetConfigureActivity: AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         setResult(RESULT_CANCELED)
-
-
     }
 }

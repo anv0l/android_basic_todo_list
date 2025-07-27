@@ -21,10 +21,6 @@ class WidgetConfigureReceiver : BroadcastReceiver() {
 
             val appWidgetManager = AppWidgetManager.getInstance(context)
             TaskListWidgetProvider().updateAppWidget(context, appWidgetManager, appWidgetId)
-//            appWidgetManager.updateAppWidget(
-//                appWidgetId,
-//                RemoteViews(context.packageName, R.layout.widget_list)
-//            )
         }
     }
 

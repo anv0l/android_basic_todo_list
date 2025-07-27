@@ -61,7 +61,7 @@ class TaskListRemoteViewFactory(
             putExtra(TaskListWidgetProvider.EXTRA_ITEM_ID, item.id)
         }
         views.setOnClickFillInIntent(R.id.txt_item_text, fillInIntent)
-        views.setOnClickFillInIntent(R.id.img_widget_item, fillInIntent)
+        views.setOnClickFillInIntent(R.id.chk_widget_item, fillInIntent)
 
 
         val dao = (context.applicationContext as TodoApplication).database.taskListDao()
@@ -87,12 +87,23 @@ class TaskListRemoteViewFactory(
 //            R.drawable.check_box_outline_blank_24dp_000000
 //        }
 
-        WidgetImageUtils.setVectorCheckbox(
-            context = context,
-            views = views,
-            imageViewId = R.id.img_widget_item,
-            isChecked = item.isChecked,
-        )
+        views.setCompoundButtonChecked(R.id.chk_widget_item, item.isChecked)
+//        Log.d("WidgetDebug", "API: ${Build.VERSION.SDK_INT} :: ${Build.VERSION_CODES.S}")
+//        try {
+//            views.setBoolean(R.id.chk_widget_item, "setChecked", item.isChecked)
+//            Log.d("WidgetDebug", "Successfully set check status")
+//        }
+//        catch (e: Exception) {
+//            Log.e("WidgetDebug", "Failed to set boolean", e)
+//        }
+
+
+//        WidgetImageUtils.setVectorCheckbox(
+//            context = context,
+//            views = views,
+//            imageViewId = R.id.ch,
+//            isChecked = item.isChecked,
+//        )
 
 //        views.setTextViewCompoundDrawables(
 //            R.id.txt_item_text,
@@ -108,7 +119,7 @@ class TaskListRemoteViewFactory(
     }
 
     override fun getViewTypeCount(): Int {
-        return 2 // todo: figure out what this does
+        return 1 // It should return an integer representing the total number of unique view types. If all items in the collection use the same layout, this method should return
     }
 
     override fun getItemId(position: Int): Long {
